@@ -20,7 +20,7 @@ sites:
     #   - "Cache-Control: no-cache"
     #   - "Pragma: no-cache"
   - name: Personal-Lab
-    url: https://www.colab.indevs.in
+    url: http://www.colab.indevs.in
     icon: https://i.ibb.co/k6GgHg8J/photo-2026-02-13-17-47-19.jpg
   - name: Portfolio Website
     url: https://www.sumit.indevs.in
