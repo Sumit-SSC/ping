@@ -26,10 +26,19 @@ jobs:
 
       - name: Build message
         id: build
+        env:
+          INCIDENT_BASE_URL: ${{ secrets.INCIDENT_BASE_URL }}
         run: |
           TITLE="${{ github.event.issue.title }}"
-          URL="${{ github.event.issue.html_url }}"
+          NUMBER="${{ github.event.issue.number }}"
+          ACTION="${{ github.event.action }}"
 
+          INCIDENT_URL="$INCIDENT_BASE_URL/$NUMBER"
+          # URL="${{ github.event.issue.html_url }}"
+
+          # =========================
+          # 🚨 INCIDENT OPENED (DOWN)
+          # =========================
           if [[ "$TITLE" == *"is down"* ]]; then
             STATUS="DOWN"
             ICON="🛑"
