@@ -54,7 +54,8 @@ jobs:
             [ -f "$STATE_FILE" ] && PREV=$(cat "$STATE_FILE")
 
             SPIKE=0
-            if [ "$CURRENT" -gt "$THRESHOLD" ] && [ "$CURRENT" -gt 1000 ]; then
+            # if [ "$CURRENT" -gt "$THRESHOLD" ] && [ "$CURRENT" -gt 1000 ]; then
+            if [ "$CURRENT" -gt 1 ]; then
               SPIKE=1
             fi
 
