@@ -25,7 +25,7 @@ jobs:
           REPO_URL="https://sumit.indevs.in/ping"
 
           SUMMARY="📊 <b>Uptime Summary</b>\n"
-          SUMMARY+="<a href=\"$REPO_URL\">Dashboard</a>\n\n"
+          SUMMARY+="🔗 Dashboard: $REPO_URL\n\n"
 
           FILE="history/summary.json"
           TOTAL=0
@@ -51,7 +51,7 @@ jobs:
               DOWN=$((DOWN+1))
             fi
 
-            # Escape HTML chars
+            # Escape HTML chars (only needed for <b>)
             SAFE_NAME=$(echo "$NAME" | sed 's/&/&amp;/g; s/</&lt;/g; s/>/&gt;/g')
 
             # Latency
@@ -81,8 +81,8 @@ jobs:
 
             SUMMARY+="$INDEX️⃣ $ICON <b>$SAFE_NAME</b>\n"
             SUMMARY+="   $LAT_LABEL | $UPTIME uptime\n"
-            SUMMARY+="   <a href=\"$STATUS_URL\">Status</a>\n"
-            SUMMARY+="   <a href=\"$GRAPH_URL\">Graph</a>\n\n"
+            SUMMARY+="   🔗 Status: $STATUS_URL\n"
+            SUMMARY+="   📊 Graph: $GRAPH_URL\n\n"
 
             INDEX=$((INDEX+1))
           done
@@ -135,8 +135,10 @@ jobs:
               message_thread_id: $thread_id,
               text: $text,
               parse_mode: "HTML",
-              disable_web_page_preview: false
+              disable_web_page_preview: true
             }')
+
+          echo "$PAYLOAD"
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.SUMMARY_BOT_TOKEN }}/sendMessage" \
             -H "Content-Type: application/json" \
