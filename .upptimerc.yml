@@ -78,10 +78,10 @@ status-website:
 # Add this at the bottom
 # notifications:
 #   - type: telegram
-notifications:
-  - type: telegram
-    # If the secret-only method fails, you can try this format
-    token: "$NOTIFICATION_TELEGRAM_TOKEN"
-    chatId: "$NOTIFICATION_TELEGRAM_CHAT_ID"
-    # chatId: -1002414692810 
-    # messageThreadId: 1976
+# notifications:
+#   - type: telegram
+#     # If the secret-only method fails, you can try this format
+#     token: "$NOTIFICATION_TELEGRAM_TOKEN"
+#     chatId: "$NOTIFICATION_TELEGRAM_CHAT_ID"
+#     # chatId: -1002414692810 
+#     # messageThreadId: 1976
