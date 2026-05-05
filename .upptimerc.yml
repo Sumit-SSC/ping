@@ -34,8 +34,8 @@ sites:
   #   url: https//Shopping.com
   # - name: test
   #   url: https://example.koj.co
-  - name: sumit-web
-    url: https://www.sumit.dev/
+  - name: mitsu-web
+    url: https://mitsus.dev/
 
 status-website:
   # 1. Your custom domain
@@ -95,15 +95,15 @@ status-website:
 #     body: '{"chat_id": "$CHAT_ID", "message_thread_id": $TOPIC_ID, "text": "$TEXT"}'
 
 
-# notifications:
-#   - type: webhook
-#     url: "https://api.telegram.org/bot$BOT_TOKEN/sendMessage"
-#     method: "POST"
-#     headers:
-#       Content-Type: "application/json"
-#     body: |
-#       {
-#         "chat_id": "$CHAT_ID",
-#         "message_thread_id": $TOPIC_ID,
-#         "text": "$TEXT"
-#       }
+notifications:
+  - type: webhook
+    url: "https://api.telegram.org/bot$BOT_TOKEN/sendMessage"
+    method: "POST"
+    headers:
+      Content-Type: "application/json"
+    body: |
+      {
+        "chat_id": "$CHAT_ID",
+        "message_thread_id": $TOPIC_ID,
+        "text": "$TEXT"
+      }
