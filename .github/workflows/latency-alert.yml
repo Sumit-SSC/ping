@@ -104,7 +104,7 @@ jobs:
           PAYLOAD=$(jq -n \
             --arg chat_id "${{ secrets.CHAT_ID }}" \
             --arg text "$MESSAGE" \
-            --argjson thread_id ${{ secrets.TOPIC_ID }} \
+            --argjson thread_id ${{ secrets.ALERT_TOPIC_ID }} \
             '{
               chat_id: $chat_id,
               message_thread_id: $thread_id,
