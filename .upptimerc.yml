@@ -34,6 +34,8 @@ sites:
     url: https//Shopping.com
   - name: test
     url: https://example.koj.co
+  - name: test
+    url: https://examplssse.koj.co
 
 status-website:
   # 1. Your custom domain
@@ -84,11 +86,19 @@ status-website:
 #     token: "$NOTIFICATION_TELEGRAM_TOKEN"
 #     chatId: "$NOTIFICATION_TELEGRAM_CHAT_ID"
 
+# notifications:
+#   - type: webhook
+#     url: "https://telegram.org"
+#     method: "POST"
+#     headers:
+#       - "Content-Type: application/json"
+#     body: '{"chat_id": "$CHAT_ID", "message_thread_id": $TOPIC_ID, "text": "$TEXT"}'
+
 notifications:
   - type: webhook
-    url: "https://telegram.org"
+    url: "https://api.telegram.org/bot$BOT_TOKEN/sendMessage"
     method: "POST"
     headers:
       - "Content-Type: application/json"
+    # Notice: No quotes around $TOPIC_ID to keep it a number
     body: '{"chat_id": "$CHAT_ID", "message_thread_id": $TOPIC_ID, "text": "$TEXT"}'
-
