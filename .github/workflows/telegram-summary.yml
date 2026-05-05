@@ -36,7 +36,7 @@ jobs:
           SUMMARY="📊 <b>Uptime Summary</b>\n\n"
 
           for file in history/*.json; do
-            NAME=$(basename "$file" .json)
+              [[ "$file" == *"summary.json" ]] && continue
 
             STATUS=$(jq -r '.status' "$file")
             LATENCY=$(jq -r '.responseTime // empty' "$file")
