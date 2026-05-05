@@ -103,23 +103,20 @@ jobs:
             fi
           done
 
-          # combine (DOWN first)
+          # combine DOWN first
           COMBINED="$DOWN_BLOCK$UP_BLOCK"
 
-          # correct numbering
+          # BLOCK-BASED numbering (FIXED)
           INDEX=1
           OUTPUT=""
 
-          while IFS= read -r line; do
-            TRIMMED=$(echo "$line" | sed 's/^[[:space:]]*//')
+          IFS=$'\n\n' read -d '' -r -a BLOCKS <<< "$COMBINED"
 
-            if [[ "$TRIMMED" =~ ^(🟢|🔴) ]]; then
-              OUTPUT+="$INDEX. $TRIMMED\n"
-              INDEX=$((INDEX+1))
-            else
-              OUTPUT+="$line\n"
-            fi
-          done <<< "$COMBINED"
+          for block in "${BLOCKS[@]}"; do
+            [[ -z "$block" ]] && continue
+            OUTPUT+="$INDEX. $block\n\n"
+            INDEX=$((INDEX+1))
+          done
 
           SUMMARY+="$OUTPUT"
 
