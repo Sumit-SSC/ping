@@ -1,0 +1,56 @@
+name: Telegram Alerts (Upptime Events)
+
+on:
+  issues:
+    types: [opened, closed]
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Build alert message
+        id: build
+        run: |
+          TITLE="${{ github.event.issue.title }}"
+          URL="${{ github.event.issue.html_url }}"
+          ACTION="${{ github.event.action }}"
+
+          # Detect UP/DOWN
+          if [[ "$TITLE" == *"is down"* ]]; then
+            STATUS="DOWN"
+            ICON="🚨"
+          elif [[ "$TITLE" == *"is up"* ]]; then
+            STATUS="RECOVERED"
+            ICON="✅"
+          else
+            STATUS="UPDATE"
+            ICON="ℹ️"
+          fi
+
+          MESSAGE="$ICON Uptime Alert\n\n"
+          MESSAGE+="Site: $TITLE\n"
+          MESSAGE+="Status: $STATUS\n"
+          MESSAGE+="🔗 $URL\n\n"
+          MESSAGE+="🕒 $(TZ='Asia/Kolkata' date +"%d %b %Y | %I:%M %p IST")"
+
+          echo "msg<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$MESSAGE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Send Telegram alert
+        run: |
+          PAYLOAD=$(jq -n \
+            --arg chat_id "${{ secrets.CHAT_ID }}" \
+            --arg text "${{ steps.build.outputs.msg }}" \
+            --argjson thread_id ${{ secrets.TOPIC_ID }} \
+            '{
+              chat_id: $chat_id,
+              message_thread_id: $thread_id,
+              text: $text,
+              disable_web_page_preview: true
+            }')
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.SUMMARY_BOT_TOKEN }}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD"
