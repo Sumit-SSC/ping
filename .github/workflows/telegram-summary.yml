@@ -22,7 +22,7 @@ jobs:
       - name: Build summary
         id: build
         run: |
-          REPO_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          REPO_URL="https://sumit.indevs.in/ping"
 
           SUMMARY="📊 <b>Uptime Summary</b>\n"
           SUMMARY+="<a href=\"$REPO_URL\">Dashboard</a>\n\n"
