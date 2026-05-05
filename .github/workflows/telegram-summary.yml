@@ -24,7 +24,7 @@ jobs:
       - name: Build summary
         id: build
         run: |
-          REPO_URL="https://<your-username>.github.io/<repo>"
+          REPO_URL="https://${{ github.repository_owner }}.github.io/$(echo '${{ github.repository }}' | cut -d'/' -f2)"
           HISTORY_POINTS=5
 
           TOTAL=0
