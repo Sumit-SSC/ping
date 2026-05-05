@@ -30,8 +30,8 @@ sites:
   - name: Wikipedia
     url: https://en.wikipedia.org
   #   # Offline Site to test for outage alert-checks
-  # - name: Shopping
-  #   url: https//Shopping.com
+  - name: Shopping
+    url: https//Shopping.com
   # - name: test
   #   url: https://example.koj.co
   - name: Streamio
