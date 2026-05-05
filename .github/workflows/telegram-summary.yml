@@ -5,7 +5,7 @@ on:
     - cron: "30 2 * * *"
   push:
     paths:
-      - "history/*.json"
+      - "history/*"
   workflow_dispatch:
 
 jobs:
@@ -24,22 +24,24 @@ jobs:
         run: |
           SUMMARY="📊 Uptime Summary\n\n"
 
+          FILE="history/summary.json"
           TOTAL=0
           DOWN=0
+          LAT_SUM=0
+          LAT_COUNT=0
           INDEX=1
 
-          FILE="history/summary.json"
-
-          COUNT=$(jq length $FILE)
+          COUNT=$(jq length "$FILE")
 
           for i in $(seq 0 $(($COUNT - 1))); do
-            NAME=$(jq -r ".[$i].name" $FILE)
-            STATUS=$(jq -r ".[$i].status" $FILE)
-            UPTIME=$(jq -r ".[$i].uptime" $FILE)
-            SLUG=$(jq -r ".[$i].slug" $FILE)
+            NAME=$(jq -r ".[$i].name" "$FILE")
+            STATUS=$(jq -r ".[$i].status" "$FILE")
+            UPTIME=$(jq -r ".[$i].uptime" "$FILE")
+            SLUG=$(jq -r ".[$i].slug" "$FILE")
 
             TOTAL=$((TOTAL+1))
 
+            # Status icon
             if [ "$STATUS" = "up" ]; then
               ICON="🟢"
             else
@@ -47,17 +49,40 @@ jobs:
               DOWN=$((DOWN+1))
             fi
 
-            # HARD-CODED STATUS PAGE (as you requested)
+            # Read YAML for latency
+            YML_FILE="history/$SLUG.yml"
+            LATENCY=""
+            if [ -f "$YML_FILE" ]; then
+              LATENCY=$(grep 'responseTime:' "$YML_FILE" | awk '{print $2}')
+            fi
+
+            # Latency rating
+            if [ -n "$LATENCY" ]; then
+              LAT_SUM=$((LAT_SUM + LATENCY))
+              LAT_COUNT=$((LAT_COUNT + 1))
+
+              if [ "$LATENCY" -lt 500 ]; then
+                LAT_LABEL="⚡ $LATENCY ms (Fast)"
+              elif [ "$LATENCY" -lt 1500 ]; then
+                LAT_LABEL="⚠ $LATENCY ms (Moderate)"
+              else
+                LAT_LABEL="🐢 $LATENCY ms (Slow)"
+              fi
+            else
+              LAT_LABEL="—"
+            fi
+
+            # Your status page link (as requested)
             STATUS_URL="https://status.sumit.indevs.in/history/$SLUG"
 
             SUMMARY+="$INDEX️⃣ $ICON $NAME\n"
-            SUMMARY+="   Status: $STATUS | Uptime: $UPTIME\n"
+            SUMMARY+="   Status: $STATUS | $LAT_LABEL | Uptime: $UPTIME\n"
             SUMMARY+="   🔗 $STATUS_URL\n\n"
 
             INDEX=$((INDEX+1))
           done
 
-          # Health
+          # Overall metrics
           UP=$((TOTAL - DOWN))
 
           if [ "$TOTAL" -gt 0 ]; then
@@ -66,6 +91,13 @@ jobs:
             HEALTH=0
           fi
 
+          if [ "$LAT_COUNT" -gt 0 ]; then
+            AVG_LAT=$((LAT_SUM / LAT_COUNT))
+          else
+            AVG_LAT=0
+          fi
+
+          # Health bar (5 blocks)
           FILLED=$((HEALTH / 20))
           EMPTY=$((5 - FILLED))
 
@@ -75,6 +107,7 @@ jobs:
 
           SUMMARY+="━━━━━━━━━━━━━━━━━━\n\n"
           SUMMARY+="📈 Health: $BAR $HEALTH%\n"
+          SUMMARY+="⚡ Avg Latency: $AVG_LAT ms\n"
           SUMMARY+="🔴 Down: $DOWN / $TOTAL\n\n"
           SUMMARY+="🕒 $(TZ='Asia/Kolkata' date +"%d %b %Y | %I:%M %p IST")"
 
