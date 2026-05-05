@@ -36,6 +36,8 @@ sites:
   #   url: https://example.koj.co
   - name: Streamio
     url: idx.theworkpc.com
+  - name: mitsu
+    url: mit-su.indevs.in
     
 status-website:
   # 1. Your custom domain
