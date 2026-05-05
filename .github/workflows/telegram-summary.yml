@@ -81,7 +81,8 @@ jobs:
 
             SUMMARY+="$INDEX️⃣ $ICON <b>$SAFE_NAME</b>\n"
             SUMMARY+="   $LAT_LABEL | $UPTIME uptime\n"
-            SUMMARY+="   🔗 <a href=\"$GRAPH_URL\">Graph</a> | <a href=\"$STATUS_URL\">Status</a>\n\n"
+            SUMMARY+="   🔗 <a href=\"$GRAPH_URL\">Graph</a>\n"
+            SUMMARY+="   🔗 <a href=\"$STATUS_URL\">Status</a>\n\n"
             INDEX=$((INDEX+1))
           done
 
