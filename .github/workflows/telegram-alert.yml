@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Filter Upptime issues only
+      - name: Filter Upptime issues
         id: filter
         run: |
           TITLE="${{ github.event.issue.title }}"
@@ -24,47 +24,40 @@ jobs:
         if: steps.filter.outputs.valid != 'true'
         run: exit 0
 
-      - name: Build alert message
+      - name: Build message
         id: build
         run: |
           TITLE="${{ github.event.issue.title }}"
           URL="${{ github.event.issue.html_url }}"
-          ACTION="${{ github.event.action }}"
 
-          # ===== STATUS DETECTION =====
           if [[ "$TITLE" == *"is down"* ]]; then
             STATUS="DOWN"
             ICON="🛑"
             ALERT="🚨 INCIDENT"
-          elif [[ "$TITLE" == *"is up"* ]]; then
+          else
             STATUS="RECOVERED"
             ICON="🟢"
             ALERT="✅ RESOLVED"
-          else
-            STATUS="UPDATE"
-            ICON="ℹ️"
-            ALERT="ℹ️ UPDATE"
           fi
 
-          # Extract clean site name
           SITE=$(echo "$TITLE" | sed 's/ is down.*//; s/ is up.*//')
 
-          MESSAGE="$ICON $ALERT\n\n"
-          MESSAGE+="🌐 Site: $SITE\n"
-          MESSAGE+="📡 Status: $STATUS\n"
-          MESSAGE+="🔗 Details: $URL\n\n"
-          MESSAGE+="🕒 $(TZ='Asia/Kolkata' date +"%d %b %Y | %I:%M %p IST")"
+          MSG="$ICON $ALERT\n\n"
+          MSG+="🌐 Site: $SITE\n"
+          MSG+="📡 Status: $STATUS\n"
+          MSG+="🔗 $URL\n\n"
+          MSG+="🕒 $(TZ='Asia/Kolkata' date +"%d %b %Y | %I:%M %p IST")"
 
           echo "msg<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$MESSAGE" >> $GITHUB_OUTPUT
+          echo -e "$MSG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Send Telegram alert
+      - name: Send Telegram
         run: |
           PAYLOAD=$(jq -n \
             --arg chat_id "${{ secrets.CHAT_ID }}" \
             --arg text "${{ steps.build.outputs.msg }}" \
-            --argjson thread_id ${{ secrets.ALERT_TOPIC_ID }} \
+            --argjson thread_id ${{ secrets.ALERTS_TOPIC_ID }} \
             '{
               chat_id: $chat_id,
               message_thread_id: $thread_id,
