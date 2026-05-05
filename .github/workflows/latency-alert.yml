@@ -1,4 +1,4 @@
-name: Latency Spike Alerts (Smart)
+name: Latency Spike Alerts (Smart + Trends)
 
 on:
   schedule:
@@ -22,8 +22,12 @@ jobs:
 
           FILE="history/summary.json"
           ALERTS=""
+          TOP_LIST=""
 
           COUNT=$(jq length "$FILE")
+
+          # temp storage for sorting
+          TMP_FILE=$(mktemp)
 
           for i in $(seq 0 $(($COUNT - 1))); do
             NAME=$(jq -r ".[$i].name" "$FILE")
@@ -38,31 +42,41 @@ jobs:
             CURRENT=$(grep 'responseTime:' "$YML_FILE" | awk '{print $2}')
             [ -z "$CURRENT" ] && continue
 
+            echo "$CURRENT|$NAME|$SLUG" >> $TMP_FILE
+
             # =============================
-            # 🎯 LATENCY CLASSIFICATION
+            # 📈 TREND DETECTION
             # =============================
-            if [ "$CURRENT" -lt 150 ]; then
-              LEVEL="🟢 Normal"
-              ALERT=0
-            elif [ "$CURRENT" -lt 500 ]; then
-              LEVEL="⚡ Slight Delay"
-              ALERT=0
-            elif [ "$CURRENT" -lt 1000 ]; then
-              LEVEL="⚠ Moderate"
-              ALERT=0
-            elif [ "$CURRENT" -lt 2500 ]; then
-              LEVEL="🚨 High Spike"
-              ALERT=1
-            else
-              LEVEL="🛑 Severe Spike"
-              ALERT=1
+            TREND_FILE=".cache/trend_$SLUG"
+            PREV=0
+            [ -f "$TREND_FILE" ] && PREV=$(cat "$TREND_FILE")
+
+            DIFF=$((CURRENT - PREV))
+            echo "$CURRENT" > "$TREND_FILE"
+
+            if [ "$PREV" -ne 0 ] && [ "$DIFF" -gt 500 ]; then
+              ALERTS+="📈 Rising Latency\n"
+              ALERTS+="🌐 $NAME\n"
+              ALERTS+="⚡ $CURRENT ms (+$DIFF)\n"
+              ALERTS+="🔗 $STATUS_BASE_URL/$SLUG\n\n"
             fi
 
-            [ "$ALERT" -ne 1 ] && continue
+            # =============================
+            # 🎯 SPIKE CLASSIFICATION
+            # =============================
+            if [ "$CURRENT" -lt 150 ]; then
+              continue
+            elif [ "$CURRENT" -lt 500 ]; then
+              continue
+            elif [ "$CURRENT" -lt 1000 ]; then
+              continue
+            elif [ "$CURRENT" -lt 2500 ]; then
+              LEVEL="🚨 High Spike"
+            else
+              LEVEL="🛑 Severe Spike"
+            fi
 
-            # =============================
-            # ⏳ COOLDOWN (2 HOURS)
-            # =============================
+            # cooldown
             COOLDOWN_FILE=".cache/alert_$SLUG"
             NOW=$(date +%s)
 
@@ -75,9 +89,6 @@ jobs:
 
             echo "$NOW" > "$COOLDOWN_FILE"
 
-            # =============================
-            # 📦 BUILD MESSAGE
-            # =============================
             ALERTS+="$LEVEL\n"
             ALERTS+="🌐 $NAME\n"
             ALERTS+="⚡ $CURRENT ms\n"
@@ -85,10 +96,28 @@ jobs:
 
           done
 
-          if [ -n "$ALERTS" ]; then
+          # =============================
+          # 🏆 TOP 3 SLOWEST SERVICES
+          # =============================
+          TOP3=$(sort -nr $TMP_FILE | head -n 3)
+
+          if [ -n "$TOP3" ]; then
+            TOP_LIST="🏆 Top Slowest Services\n\n"
+
+            while IFS="|" read -r LAT NAME SLUG; do
+              TOP_LIST+="🌐 $NAME\n⚡ $LAT ms\n\n"
+            done <<< "$TOP3"
+          fi
+
+          FINAL_MSG=""
+
+          [ -n "$ALERTS" ] && FINAL_MSG+="🚨 Alerts\n\n$ALERTS"
+          [ -n "$TOP_LIST" ] && FINAL_MSG+="━━━━━━━━━━━━━━━━━━\n\n$TOP_LIST"
+
+          if [ -n "$FINAL_MSG" ]; then
             echo "alert=true" >> $GITHUB_OUTPUT
             echo "msg<<EOF" >> $GITHUB_OUTPUT
-            echo -e "🚨 Latency Alert\n\n$ALERTS" >> $GITHUB_OUTPUT
+            echo -e "$FINAL_MSG" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
           else
             echo "alert=false" >> $GITHUB_OUTPUT
@@ -97,7 +126,7 @@ jobs:
       - name: Send Telegram
         if: steps.analyze.outputs.alert == 'true'
         run: |
-          MESSAGE="${{ steps.analyze.outputs.msg }}\n🕒 $(TZ='Asia/Kolkata' date +"%d %b %Y | %I:%M %p IST")"
+          MESSAGE="${{ steps.analyze.outputs.msg }}\n 🕒 $(TZ='Asia/Kolkata' date +"%d %b %Y | %I:%M %p IST")"
 
           PAYLOAD=$(jq -n \
             --arg chat_id "${{ secrets.CHAT_ID }}" \
