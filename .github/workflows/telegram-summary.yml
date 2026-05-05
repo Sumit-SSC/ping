@@ -1,0 +1,140 @@
+name: Telegram Uptime Summary
+
+on:
+  schedule:
+    # 08:00 IST = 02:30 UTC
+    - cron: "30 2 * * *"
+  push:
+    paths:
+      - "history/*.json"
+  workflow_dispatch:
+
+jobs:
+  summary:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Start timer
+        id: timer_start
+        run: echo "START=$(date +%s)" >> $GITHUB_ENV
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build summary
+        id: build
+        run: |
+          REPO_URL="https://<your-username>.github.io/<repo>"
+          HISTORY_POINTS=5
+
+          TOTAL=0
+          DOWN=0
+          LAT_SUM=0
+          LAT_COUNT=0
+          INDEX=1
+
+          SUMMARY="📊 <b>Uptime Summary</b>\n\n"
+
+          for file in history/*.json; do
+            NAME=$(basename "$file" .json)
+
+            STATUS=$(jq -r '.status' "$file")
+            LATENCY=$(jq -r '.responseTime // empty' "$file")
+
+            TOTAL=$((TOTAL+1))
+
+            # Trend graph
+            STATUSES=$(jq -r ".history[-$HISTORY_POINTS:][]?.status" "$file")
+            GRAPH=""
+            for s in $STATUSES; do
+              if [ "$s" = "up" ]; then GRAPH+="🟩"; else GRAPH+="🟥"; fi
+            done
+
+            # Status
+            if [ "$STATUS" = "up" ]; then
+              ICON="🟢"
+              STATUS_TEXT="UP"
+            else
+              ICON="🔴"
+              STATUS_TEXT="DOWN"
+              DOWN=$((DOWN+1))
+            fi
+
+            # Links
+            STATUS_URL="$REPO_URL/$NAME"
+            GRAPH_URL="$REPO_URL/$NAME"
+
+            # Latency + rating
+            if [ -n "$LATENCY" ] && [ "$LATENCY" != "null" ]; then
+              LAT_SUM=$((LAT_SUM + LATENCY))
+              LAT_COUNT=$((LAT_COUNT + 1))
+
+              if [ "$LATENCY" -lt 500 ]; then
+                LAT_LABEL="⚡ $LATENCY ms (Fast)"
+              elif [ "$LATENCY" -lt 1500 ]; then
+                LAT_LABEL="⚠ $LATENCY ms (Moderate)"
+              else
+                LAT_LABEL="🐢 $LATENCY ms (Slow)"
+              fi
+            else
+              LAT_LABEL="🚨 No response"
+            fi
+
+            SUMMARY+="$INDEX️⃣ $ICON <a href=\"$STATUS_URL\">$NAME</a>\n"
+            SUMMARY+="   Status: <a href=\"$STATUS_URL\">$STATUS_TEXT</a> | <a href=\"$GRAPH_URL\">$LAT_LABEL</a> | $GRAPH\n\n"
+
+            INDEX=$((INDEX+1))
+          done
+
+          # Metrics
+          UP=$((TOTAL - DOWN))
+
+          if [ "$TOTAL" -gt 0 ]; then
+            HEALTH=$((UP * 100 / TOTAL))
+          else
+            HEALTH=0
+          fi
+
+          if [ "$LAT_COUNT" -gt 0 ]; then
+            AVG_LAT=$((LAT_SUM / LAT_COUNT))
+          else
+            AVG_LAT=0
+          fi
+
+          # Health bar (5 blocks)
+          FILLED=$((HEALTH / 20))
+          EMPTY=$((5 - FILLED))
+
+          BAR=""
+          for i in $(seq 1 $FILLED); do BAR+="🟩"; done
+          for i in $(seq 1 $EMPTY); do BAR+="⬜"; done
+
+          SUMMARY+="━━━━━━━━━━━━━━━━━━\n\n"
+          SUMMARY+="📈 <b>Health:</b> $BAR $HEALTH%\n"
+          SUMMARY+="⚡ <b>Avg Latency:</b> $AVG_LAT ms\n"
+          SUMMARY+="🔴 <b>Down:</b> $DOWN / $TOTAL\n\n"
+          SUMMARY+="🔗 <a href=\"$REPO_URL\">Full Dashboard</a>\n\n"
+          SUMMARY+="🕒 $(TZ='Asia/Kolkata' date +"%d %b %Y | %I:%M %p IST")"
+
+          echo "message<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$SUMMARY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Calculate runtime
+        id: timer_end
+        run: |
+          END=$(date +%s)
+          DURATION=$((END - $START))
+          echo "runtime=${DURATION}s" >> $GITHUB_OUTPUT
+
+      - name: Send Telegram message
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.SUMMARY_BOT_TOKEN }}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"chat_id\": \"${{ secrets.CHAT_ID }}\",
+              \"message_thread_id\": ${{ secrets.TOPIC_ID }},
+              \"text\": \"${{ steps.build.outputs.message }}\n\n⏱ Runtime: ${{ steps.timer_end.outputs.runtime }}\",
+              \"parse_mode\": \"HTML\",
+              \"disable_web_page_preview\": true
+            }"
