@@ -14,7 +14,7 @@ jobs:
         run: |
           TITLE="${{ github.event.issue.title }}"
 
-          if [[ "$TITLE" == *"is down"* ]] || [[ "$TITLE" == *"is up"* ]]; then
+          if [[ "$TITLE" == *"down"* ]] || [[ "$TITLE" == *"up"* ]]; then
             echo "valid=true" >> $GITHUB_OUTPUT
           else
             echo "valid=false" >> $GITHUB_OUTPUT
@@ -34,10 +34,8 @@ jobs:
 
           INCIDENT_URL="$INCIDENT_BASE_URL/$NUMBER"
 
-          # =========================
-          # Determine status
-          # =========================
-          if [[ "$TITLE" == *"is down"* ]]; then
+          # status detection
+          if [[ "$TITLE" == *"down"* ]]; then
             STATUS="DOWN"
             ICON="🛑"
             ALERT="🚨 INCIDENT"
@@ -47,31 +45,22 @@ jobs:
             ALERT="✅ RESOLVED"
           fi
 
-          # =========================
-          # Clean site name
-          # =========================
+          # clean site name
           SITE=$(echo "$TITLE" \
             | sed -E 's/\[.*\]//g' \
             | sed -E 's/^🟥 //; s/^🟩 //' \
             | sed -E 's/ is down.*//; s/ is up.*//' \
             | xargs)
 
-          # =========================
-          # Build message safely
-          # =========================
-          MSG=$(cat <<EOF
-$ICON $ALERT
-
-🌐 Site: $SITE
-📡 Status: $STATUS
-🔗 $INCIDENT_URL
-
-🕒 $(TZ='Asia/Kolkata' date +"%d %b %Y | %I:%M %p IST")
-EOF
-)
+          # build message safely (NO heredoc)
+          MSG="$ICON $ALERT\n\n"
+          MSG+="🌐 Site: $SITE\n"
+          MSG+="📡 Status: $STATUS\n"
+          MSG+="🔗 $INCIDENT_URL\n\n"
+          MSG+="🕒 $(TZ='Asia/Kolkata' date +"%d %b %Y | %I:%M %p IST")"
 
           echo "msg<<EOF" >> $GITHUB_OUTPUT
-          echo "$MSG" >> $GITHUB_OUTPUT
+          echo -e "$MSG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Send Telegram
@@ -84,7 +73,7 @@ EOF
               chat_id: $chat_id,
               message_thread_id: $thread_id,
               text: $text,
-              disable_web_page_preview: false
+              disable_web_page_preview: true
             }')
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.SUMMARY_BOT_TOKEN }}/sendMessage" \
