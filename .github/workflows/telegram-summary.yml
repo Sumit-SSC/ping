@@ -79,10 +79,9 @@ jobs:
             STATUS_URL="https://status.sumit.indevs.in/history/$SLUG"
             GRAPH_URL="https://github.com/${{ github.repository }}/blob/master/graphs/$SLUG/response-time-week.png"
 
-            SUMMARY+="$INDEX️⃣ $ICON <b>$SAFE_NAME</b> "
-            SUMMARY+="[<a href=\"$GRAPH_URL\">Graph</a> | <a href=\"$STATUS_URL\">Status</a>]\n"
-            SUMMARY+="   $LAT_LABEL | $UPTIME uptime\n\n"
-
+            SUMMARY+="$INDEX️⃣ $ICON <b>$SAFE_NAME</b>\n"
+            SUMMARY+="   $LAT_LABEL | $UPTIME uptime\n"
+            SUMMARY+="   🔗 <a href=\"$GRAPH_URL\">Graph</a> | <a href=\"$STATUS_URL\">Status</a>\n\n"
             INDEX=$((INDEX+1))
           done
 
