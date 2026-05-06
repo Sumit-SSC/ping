@@ -1,7 +1,12 @@
 {
   "shoppingssss": {
-    "active": true,
-    "last_incident": 1778069344
+    "active": false,
+    "last_incident": 1778069861,
+    "incidents": 1,
+    "weekly": 1,
+    "flaps": 1,
+    "downtime": 509,
+    "mttr": 509
   },
   "testasssa": {
     "active": true,
