@@ -1,67 +1,109 @@
 # ==========================================
+# ADVANCED INCIDENT ALERT SYSTEM
 # ==========================================
-# INCIDENT ALERT SYSTEM
-# ==========================================
 #
-# Sends Telegram alerts when:
-# ✅ site goes DOWN
-# ✅ service RECOVERS
+# Purpose:
 #
-# Uses Upptime issue lifecycle:
-# - issue opened  -> outage
-# - issue closed  -> recovery
+# Sends Telegram alerts for:
+# ✅ Service outages
+# ✅ Service recovery
+# ✅ Incident metrics
+# ✅ Weekly incident reports
 #
-# Reads:
-#   history/summary.json
-#   history/*.yml
+# Built around Upptime issue lifecycle.
+#
+# Architecture:
+#
+# Upptime handles:
+# - site checks
+# - issue creation
+# - issue closure
+# - uptime tracking
+# - history generation
+#
+# This workflow handles:
+# - Telegram notifications
+# - MTTR tracking
+# - incident analytics
+# - recovery summaries
+# - reporting
 #
 # ==========================================
 # REQUIRED GITHUB SECRETS
 # ==========================================
 #
 # INCIDENT_BASE_URL
-#   Base incident page URL
+#   Base URL for incident pages.
+#   Example:
+#   https://status.example.com/incident
 #
 # STATUS_BASE_URL
-#   Base history/status URL
+#   Base URL for history pages.
+#   Example:
+#   https://status.example.com/history
 #
 # CHAT_ID
-#   Telegram group/chat ID
+#   Telegram group/chat ID.
 #
 # ALERTS_TOPIC_ID
-#   Telegram topic/thread ID
+#   Telegram forum topic/thread ID.
 #
 # SUMMARY_BOT_TOKEN
-#   Telegram bot token
+#   Telegram bot token.
 #
 # SUMMARY_TIMEZONE
-#   Display timezone
+#   Display timezone for messages.
 #
-# Example:
+# Examples:
 #   Asia/Kolkata
+#   Asia/Tokyo
+#   Europe/Berlin
 #   UTC
 #
 # ==========================================
-# ==========================================
-# ADVANCED INCIDENT ALERT SYSTEM
+# CRON NOTES
 # ==========================================
 #
-# Features:
+# GitHub cron uses UTC timezone only.
+#
+# Current:
+# "0 3 * * 1"
+# = Every Monday 03:00 UTC
+#
+# Use:
+# https://crontab.guru/
+#
+# ==========================================
+# STATE FILES
+# ==========================================
+#
+# history/incident-metrics.json
+#
+# Stores:
+# - incident counts
+# - total downtime
+# - MTTR values
+# - historical metrics
+#
+# This file persists across workflow runs.
+#
+# ==========================================
+# FEATURES
+# ==========================================
 #
 # ✅ Incident open alerts
 # ✅ Recovery alerts
-# ✅ Downtime duration calculation
+# ✅ Downtime duration tracking
 # ✅ MTTR tracking
 # ✅ Incident frequency tracking
-# ✅ Weekly reporting support
+# ✅ Weekly reporting
 # ✅ Severity classification
-# ✅ Latency speed ladder
-# ✅ Health/jitter indicators
+# ✅ Speed ladder integration
+# ✅ Jitter / degradation indicators
 # ✅ Telegram integration
-# ✅ Persistent state tracking
+# ✅ Persistent metrics storage
+#
 # ==========================================
-
-
 
 name: Advanced Incident Alerts
 
@@ -70,16 +112,30 @@ on:
   # ========================================
   # Upptime issue lifecycle
   # ========================================
+  #
+  # opened = outage detected
+  # closed = recovery detected
+  #
+  # Event-driven architecture is preferred
+  # over polling because Upptime already
+  # handles monitoring internally.
+  # ========================================
+
   issues:
     types:
       - opened
       - closed
 
   # ========================================
-  # Weekly report generation
+  # Weekly incident analytics report
   # ========================================
+
   schedule:
     - cron: "0 3 * * 1"
+
+  # ========================================
+  # Manual workflow trigger
+  # ========================================
 
   workflow_dispatch:
 
@@ -88,6 +144,7 @@ jobs:
   # ========================================
   # INCIDENT / RECOVERY ALERTS
   # ========================================
+
   incident-alert:
 
     if: github.event_name == 'issues'
@@ -96,11 +153,24 @@ jobs:
 
     steps:
 
+      # ====================================
+      # Checkout repository
+      # ====================================
+
       - uses: actions/checkout@v4
 
       # ====================================
-      # Initialize state tracking
+      # Initialize metrics state file
       # ====================================
+      #
+      # Stores:
+      # - incidents count
+      # - cumulative downtime
+      # - MTTR values
+      #
+      # Prevents metrics loss between runs.
+      # ====================================
+
       - name: Initialize incident state
         run: |
           mkdir -p history
@@ -110,8 +180,13 @@ jobs:
           fi
 
       # ====================================
-      # Filter Upptime issues only
+      # Filter only Upptime incidents
       # ====================================
+      #
+      # Prevents unrelated GitHub issues
+      # from triggering Telegram alerts.
+      # ====================================
+
       - name: Filter issues
         id: filter
         run: |
@@ -129,8 +204,17 @@ jobs:
         run: exit 0
 
       # ====================================
-      # Build advanced incident message
+      # Build incident message
       # ====================================
+      #
+      # Handles:
+      # - incident parsing
+      # - latency analysis
+      # - MTTR calculations
+      # - severity classification
+      # - Telegram formatting
+      # ====================================
+
       - name: Build incident message
         id: build
 
@@ -154,7 +238,7 @@ jobs:
           METRICS_FILE="history/incident-metrics.json"
 
           # ==================================
-          # Clean site name
+          # Clean site name from issue title
           # ==================================
 
           SITE=$(echo "$TITLE" \
@@ -164,7 +248,7 @@ jobs:
             | xargs)
 
           # ==================================
-          # Get slug
+          # Match site slug from summary.json
           # ==================================
 
           SLUG=$(jq -r \
@@ -177,7 +261,7 @@ jobs:
           STATUS_URL="$STATUS_BASE_URL/$SLUG"
 
           # ==================================
-          # Latest latency
+          # Read latest latency snapshot
           # ==================================
 
           YML_FILE="history/$SLUG.yml"
@@ -189,7 +273,19 @@ jobs:
           fi
 
           # ==================================
-          # Speed ladder
+          # Latency speed ladder
+          # ==================================
+          #
+          # Represents user experience feel.
+          #
+          # ⚡ Instant
+          # 🚀 Fast
+          # ✈️ Good
+          # 🏎️ Responsive
+          # 🚗 Moderate
+          # 🏇 Slower
+          # 🐢 Very slow
+          # 🐌 Critical
           # ==================================
 
           if [[ "$LATENCY" =~ ^[0-9]+$ ]]; then
@@ -217,7 +313,7 @@ jobs:
           fi
 
           # ==================================
-          # Uptime snapshot
+          # Current uptime snapshot
           # ==================================
 
           UPTIME=$(jq -r \
@@ -226,7 +322,7 @@ jobs:
             "$FILE")
 
           # ==================================
-          # Downtime duration
+          # Downtime duration calculation
           # ==================================
 
           DIFF=0
@@ -252,6 +348,11 @@ jobs:
 
           # ==================================
           # Severity classification
+          # ==================================
+          #
+          # Based on:
+          # - latency
+          # - downtime duration
           # ==================================
 
           if [ "$ACTION" = "opened" ]; then
@@ -283,7 +384,7 @@ jobs:
           fi
 
           # ==================================
-          # Jitter / health indicator
+          # Jitter / degradation indicator
           # ==================================
 
           JITTER="Stable"
@@ -302,6 +403,13 @@ jobs:
 
           # ==================================
           # MTTR + incident tracking
+          # ==================================
+          #
+          # MTTR:
+          # Mean Time To Recovery
+          #
+          # Used for operational reliability
+          # tracking.
           # ==================================
 
           INCIDENTS=$(jq -r \
@@ -347,7 +455,7 @@ jobs:
           MTTR_MIN=$((MTTR / 60))
 
           # ==================================
-          # Time formatting
+          # Local + UTC timestamps
           # ==================================
 
           LOCAL_TIME=$(TZ="$SUMMARY_TIMEZONE" \
@@ -417,6 +525,7 @@ jobs:
       # ====================================
       # Send Telegram alert
       # ====================================
+
       - name: Send Telegram
         run: |
 
@@ -437,8 +546,12 @@ jobs:
             -d "$PAYLOAD"
 
       # ====================================
-      # Persist metrics
+      # Persist metrics state
       # ====================================
+      #
+      # Saves updated MTTR + incident data.
+      # ====================================
+
       - name: Commit metrics
         run: |
           git config user.name "github-actions"
@@ -453,6 +566,13 @@ jobs:
   # ========================================
   # WEEKLY INCIDENT REPORT
   # ========================================
+  #
+  # Sends weekly operational summary:
+  # - top failing services
+  # - incident frequency
+  # - MTTR statistics
+  # ========================================
+
   weekly-report:
 
     if: github.event_name == 'schedule'
@@ -462,6 +582,10 @@ jobs:
     steps:
 
       - uses: actions/checkout@v4
+
+      # ====================================
+      # Build weekly analytics report
+      # ====================================
 
       - name: Build weekly report
         id: report
@@ -506,6 +630,10 @@ jobs:
           echo -e "$REPORT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      # ====================================
+      # Send weekly Telegram report
+      # ====================================
+
       - name: Send weekly report
         run: |
 
@@ -524,3 +652,4 @@ jobs:
             "https://api.telegram.org/bot${{ secrets.SUMMARY_BOT_TOKEN }}/sendMessage" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD"
+```
