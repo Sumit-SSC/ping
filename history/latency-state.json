@@ -9,12 +9,12 @@
   },
   "portfolio-website": {
     "last_seen_update": "2026-05-06T08:22:06.428Z",
-    "spikes": 1,
-    "last_alert": 1778056835,
+    "spikes": 2,
+    "last_alert": 1778058543,
     "active": true,
     "avg": 437,
     "deviation": 0,
-    "weekly_spikes": 1
+    "weekly_spikes": 2
   },
   "google": {
     "last_seen_update": "2026-05-06T08:22:06.517Z",
@@ -26,12 +26,12 @@
   },
   "streamio": {
     "last_seen_update": "2026-05-06T08:22:07.426Z",
-    "spikes": 1,
-    "last_alert": 1778056835,
+    "spikes": 2,
+    "last_alert": 1778058543,
     "active": true,
     "avg": 784,
     "deviation": 0,
-    "weekly_spikes": 1
+    "weekly_spikes": 2
   },
   "shoppingssss": {
     "last_seen_update": "2026-05-06T08:22:28.525Z",
