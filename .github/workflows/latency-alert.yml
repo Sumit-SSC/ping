@@ -640,7 +640,7 @@ jobs:
           UTC_TIME=$(TZ="UTC" \
             date +"%H:%M UTC")
 
-          FINAL+="\n\n🕒 $LOCAL_TIME |"
+          FINAL+="\n\n🕒 $LOCAL_TIME | "
           FINAL+="🌍 $UTC_TIME"
 
           echo "msg<<EOF" >> $GITHUB_OUTPUT
