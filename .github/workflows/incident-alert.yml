@@ -122,7 +122,7 @@
 # STATE FILES
 # ==========================================
 #
-# history/incident-metrics.json
+# observability/incident-metrics.json
 #
 # Stores:
 # - incident counts
@@ -218,10 +218,10 @@ jobs:
       - name: Initialize metrics
         run: |
 
-          mkdir -p history
+          mkdir -p observability
 
-          if [ ! -f history/incident-metrics.json ]; then
-            echo "{}" > history/incident-metrics.json
+          if [ ! -f observability/incident-metrics.json ]; then
+            echo "{}" > observability/incident-metrics.json
           fi
 
       # ====================================
@@ -269,7 +269,7 @@ jobs:
           INCIDENT_URL="$INCIDENT_BASE_URL/$NUMBER"
 
           FILE="history/summary.json"
-          DB="history/incident-metrics.json"
+          DB="observability/incident-metrics.json"
 
           # ==================================
           # Clean site name
@@ -657,7 +657,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          git add history/incident-metrics.json
+          git add observability/incident-metrics.json
 
           git diff --cached --quiet && exit 0
 
@@ -777,3 +777,31 @@ jobs:
             "https://api.telegram.org/bot${{ secrets.SUMMARY_BOT_TOKEN }}/sendMessage" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD"
+
+      # ====================================
+      # Reset weekly metrics
+      # ====================================
+
+      - name: Reset weekly counters
+
+        run: |
+
+          DB="observability/incident-metrics.json"
+
+          jq '
+            with_entries(
+              .value.weekly = 0
+            )
+          ' "$DB" > tmp.json && mv tmp.json "$DB"
+
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          git add observability/incident-metrics.json
+
+          git diff --cached --quiet && exit 0
+
+          git commit -m "Reset weekly incident metrics"
+
+          git pull --rebase origin master || true
+          git push origin master  
