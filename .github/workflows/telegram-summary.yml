@@ -1,15 +1,27 @@
 # ==========================================
-# TELEGRAM UPTIME SUMMARY
+# INFRASTRUCTURE HEALTH DIGEST
 # ==========================================
 #
 # Purpose:
 #
-# Sends a visual Telegram uptime summary
-# using Upptime-generated history files.
+# Sends a visual infrastructure summary
+# to Telegram using Upptime-generated
+# uptime + latency history.
 #
-# Reads:
-#   history/summary.json
-#   history/*.yml
+# ==========================================
+# FEATURES
+# ==========================================
+#
+# ✅ Uptime monitoring summary
+# ✅ Sequential service numbering
+# ✅ Adaptive latency speed ladder
+# ✅ Availability grading
+# ✅ Infrastructure trend analysis
+# ✅ Slowest service detection
+# ✅ Instability tracking
+# ✅ Health bars
+# ✅ UTC + local timezone display
+# ✅ Runtime telemetry
 #
 # ==========================================
 # REQUIRED GITHUB SECRETS
@@ -98,33 +110,33 @@
 #
 # Cron helper:
 # https://crontab.guru/
-#
 
 # ==========================================
 # Actual Working Code ⬇️
 # ==========================================
 
-
-name: Telegram Upptime Summary & Stats Monitor
+name: Infrastructure Health Digest
 
 on:
 
   # ========================================
   # TEST MODE
-  #
   # Every 5 minutes
   # ========================================
+
   schedule:
     - cron: "*/5 * * * *"
 
   # ========================================
   # Manual trigger
   # ========================================
+
   workflow_dispatch:
 
 jobs:
 
   summary:
+
     runs-on: ubuntu-latest
 
     env:
@@ -137,34 +149,33 @@ jobs:
       # ====================================
       # Runtime timer
       # ====================================
+
       - name: Start timer
         run: echo "START=$(date +%s)" >> $GITHUB_ENV
 
       # ====================================
       # Checkout repository
       # ====================================
-      - name: Checkout repo
+
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       # ====================================
-      # Build Telegram summary
+      # Build infrastructure summary
       # ====================================
+
       - name: Build summary
         id: build
 
         run: |
 
-          SUMMARY="📊 Upptime Monitor Summary\n\n"
+          SUMMARY="📊 Infrastructure Health Digest\n\n"
           SUMMARY+="🔗 Dashboard: $DASHBOARD_URL\n\n"
 
           FILE="history/summary.json"
 
           TOTAL=0
           DOWN=0
-          INDEX=1
-
-          DOWN_BLOCK=""
-          UP_BLOCK=""
 
           LAT_SUM=0
           LAT_COUNT=0
@@ -175,10 +186,13 @@ jobs:
           MOST_UNSTABLE=""
           MOST_SPIKES=0
 
+          TMP_DOWN=$(mktemp)
+          TMP_UP=$(mktemp)
+
           COUNT=$(jq length "$FILE")
 
           # ==================================
-          # Iterate services
+          # Iterate monitored services
           # ==================================
 
           for i in $(seq 0 $(($COUNT - 1))); do
@@ -214,7 +228,7 @@ jobs:
             fi
 
             # ==================================
-            # Track slowest service
+            # Slowest service tracking
             # ==================================
 
             if [[ "$LATENCY" =~ ^[0-9]+$ ]]; then
@@ -227,9 +241,7 @@ jobs:
             fi
 
             # ==================================
-            # Optional instability tracking
-            #
-            # Reads from latency-state.json
+            # Instability tracking
             # ==================================
 
             if [ -f "history/latency-state.json" ]; then
@@ -327,28 +339,53 @@ jobs:
 
             STATUS_URL="$STATUS_BASE_URL/$SLUG"
 
-            # ==================================
-            # Service block
-            # ==================================
+            BLOCK="$ICON|$NAME|$LAT_LABEL|$HBAR|$UPTIME|$STATUS_URL"
 
-            BLOCK="$INDEX. $ICON $NAME\n"
-            BLOCK+="   $LAT_LABEL | 📈 $HBAR | ⏱ $UPTIME\n"
-            BLOCK+="   🔗 $STATUS_URL\n\n"
+            # ==================================
+            # DOWN services shown first
+            # ==================================
 
             if [ "$STATUS" = "down" ]; then
-              DOWN_BLOCK+="$BLOCK"
+              echo "$BLOCK" >> "$TMP_DOWN"
             else
-              UP_BLOCK+="$BLOCK"
+              echo "$BLOCK" >> "$TMP_UP"
             fi
-
-            INDEX=$((INDEX + 1))
 
           done
 
-          SUMMARY+="$DOWN_BLOCK$UP_BLOCK"
+          # ==================================
+          # Render DOWN services first
+          # Sequential numbering
+          # ==================================
+
+          INDEX=1
+
+          while IFS="|" read -r ICON NAME LAT HBAR UPTIME URL; do
+
+            [ -z "$NAME" ] && continue
+
+            SUMMARY+="$INDEX. $ICON $NAME\n"
+            SUMMARY+="   $LAT | 📈 $HBAR | ⏱ $UPTIME\n"
+            SUMMARY+="   🔗 $URL\n\n"
+
+            INDEX=$((INDEX + 1))
+
+          done < "$TMP_DOWN"
+
+          while IFS="|" read -r ICON NAME LAT HBAR UPTIME URL; do
+
+            [ -z "$NAME" ] && continue
+
+            SUMMARY+="$INDEX. $ICON $NAME\n"
+            SUMMARY+="   $LAT | 📈 $HBAR | ⏱ $UPTIME\n"
+            SUMMARY+="   🔗 $URL\n\n"
+
+            INDEX=$((INDEX + 1))
+
+          done < "$TMP_UP"
 
           # ==================================
-          # Overall health metrics
+          # Infrastructure metrics
           # ==================================
 
           UP=$((TOTAL - DOWN))
@@ -365,12 +402,30 @@ jobs:
             AVG_LAT=0
           fi
 
-          FILLED=$((HEALTH / 20))
-          EMPTY=$((5 - FILLED))
+          # ==================================
+          # Availability grade
+          # ==================================
+
+          if [ "$HEALTH" -ge 100 ]; then
+            GRADE="A+"
+          elif [ "$HEALTH" -ge 90 ]; then
+            GRADE="A"
+          elif [ "$HEALTH" -ge 80 ]; then
+            GRADE="B"
+          elif [ "$HEALTH" -ge 70 ]; then
+            GRADE="C"
+          elif [ "$HEALTH" -ge 50 ]; then
+            GRADE="D"
+          else
+            GRADE="F"
+          fi
 
           # ==================================
-          # Health bar color
+          # Health bar
           # ==================================
+
+          FILLED=$((HEALTH / 20))
+          EMPTY=$((5 - FILLED))
 
           if [ "$HEALTH" -ge 100 ]; then
             COLOR="🟩"
@@ -395,13 +450,36 @@ jobs:
           done
 
           # ==================================
-          # Optional trend insights
+          # Network quality
+          # ==================================
+
+          if [ "$AVG_LAT" -lt 200 ]; then
+            NET_STATE="Excellent"
+            NET_ICON="⚡"
+          elif [ "$AVG_LAT" -lt 500 ]; then
+            NET_STATE="Healthy"
+            NET_ICON="🚀"
+          elif [ "$AVG_LAT" -lt 1000 ]; then
+            NET_STATE="Moderate"
+            NET_ICON="✈️"
+          elif [ "$AVG_LAT" -lt 1500 ]; then
+            NET_STATE="Degraded"
+            NET_ICON="🏇"
+          else
+            NET_STATE="Critical"
+            NET_ICON="🐌"
+          fi
+
+          # ==================================
+          # Infrastructure trend analysis
           # ==================================
 
           TREND="Stable"
 
-          if [ "$AVG_LAT" -gt 1500 ]; then
+          if [ "$DOWN" -ge 3 ]; then
             TREND="Critical"
+          elif [ "$DOWN" -ge 1 ]; then
+            TREND="Degrading"
           elif [ "$AVG_LAT" -gt 1000 ]; then
             TREND="Degrading"
           elif [ "$AVG_LAT" -gt 500 ]; then
@@ -419,30 +497,63 @@ jobs:
             date +"%H:%M UTC")
 
           # ==================================
-          # Final metrics block
+          # Final infrastructure summary
           # ==================================
 
           SUMMARY+="━━━━━━━━━━━━━━━━━━\n\n"
 
-          SUMMARY+="📈 Health: $BAR $HEALTH%\n"
-          SUMMARY+="⚡ Avg Latency: $AVG_LAT ms\n"
-          SUMMARY+="🔴 Down: $DOWN / $TOTAL\n"
+          SUMMARY+="🏥 Infrastructure Health\n"
+          SUMMARY+="📈 Availability: $BAR $HEALTH%\n"
+          SUMMARY+="🎓 Availability Grade: $GRADE\n"
+          SUMMARY+="$NET_ICON Network Quality: $NET_STATE ($AVG_LAT ms)\n"
+          SUMMARY+="📊 Infrastructure Trend: $TREND\n"
+          SUMMARY+="🔴 Active Incidents: $DOWN / $TOTAL\n"
 
           # ==================================
-          # Extra insights
+          # Slowest service
           # ==================================
 
           if [ -n "$SLOWEST_SITE" ]; then
-            SUMMARY+="🐌 Slowest: $SLOWEST_SITE ($SLOWEST_LAT ms)\n"
+
+            SUMMARY+="\n🐌 Slowest Service\n"
+            SUMMARY+="• $SLOWEST_SITE ($SLOWEST_LAT ms)\n"
+
           fi
+
+          # ==================================
+          # Instability insights
+          # ==================================
 
           if [ "$MOST_SPIKES" -gt 0 ]; then
-            SUMMARY+="🚨 Unstable: $MOST_UNSTABLE ($MOST_SPIKES spikes)\n"
+
+            SUMMARY+="\n🚨 Most Unstable\n"
+            SUMMARY+="• $MOST_UNSTABLE ($MOST_SPIKES spikes)\n"
+
           fi
 
-          SUMMARY+="📊 Trend: $TREND\n\n"
+          # ==================================
+          # Operational insights
+          # ==================================
 
-          SUMMARY+="🕒 $LOCAL_TIME\n"
+          SUMMARY+="\n📡 System Assessment\n"
+
+          if [ "$TREND" = "Critical" ]; then
+            SUMMARY+="• Critical infrastructure degradation detected\n"
+          elif [ "$TREND" = "Degrading" ]; then
+            SUMMARY+="• Elevated latency and service instability\n"
+          elif [ "$TREND" = "Moderate" ]; then
+            SUMMARY+="• Infrastructure operating under moderate load\n"
+          else
+            SUMMARY+="• Infrastructure operating normally\n"
+          fi
+
+          SUMMARY+="• Monitoring systems operational\n"
+
+          # ==================================
+          # Time + runtime
+          # ==================================
+
+          SUMMARY+="\n🕒 $LOCAL_TIME\n"
           SUMMARY+="🌍 $UTC_TIME\n"
           SUMMARY+="⏱ Runtime: $(( $(date +%s) - $START ))s"
 
@@ -451,9 +562,10 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       # ====================================
-      # Send Telegram message
+      # Send Telegram summary
       # ====================================
-      - name: Send Telegram message
+
+      - name: Send Telegram summary
 
         run: |
 
@@ -472,4 +584,3 @@ jobs:
             "https://api.telegram.org/bot${{ secrets.SUMMARY_BOT_TOKEN }}/sendMessage" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD"
-            
