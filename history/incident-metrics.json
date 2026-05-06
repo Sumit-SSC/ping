@@ -7,5 +7,14 @@
     "mttr": 1839,
     "active": false,
     "last_incident": 1778056913
+  },
+  "shoppingssss": {
+    "incidents": 1,
+    "weekly": 1,
+    "flaps": 0,
+    "downtime": 1868,
+    "mttr": 1868,
+    "active": false,
+    "last_incident": 1778056929
   }
 }
