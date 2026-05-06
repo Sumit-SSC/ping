@@ -36,20 +36,27 @@
 # REQUIRED GITHUB SECRETS
 # ==========================================
 #
+# INCIDENT_BASE_URL
+#   Base URL for incident pages.
+#   Example:
+#   https://status.example.com/incident
+#
 # STATUS_BASE_URL
-#   Base URL for history pages
+#   Base URL for history pages.
+#   Example:
+#   https://status.example.com/history
 #
 # CHAT_ID
-#   Telegram group/chat ID
+#   Telegram group/chat ID.
 #
 # ALERTS_TOPIC_ID
-#   Telegram topic/thread ID
+#   Telegram forum topic/thread ID.
 #
 # SUMMARY_BOT_TOKEN
-#   Telegram bot token
+#   Telegram bot token.
 #
 # SUMMARY_TIMEZONE
-#   Display timezone
+#   Display timezone for messages.
 #
 # Examples:
 #   Asia/Kolkata
