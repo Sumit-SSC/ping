@@ -634,7 +634,7 @@ jobs:
           if [ -s "$TMP_INSIGHT" ]; then
 
             FINAL+="━━━━━━━━━━━━━━━━━━\n\n"
-            FINAL+="📊 Performance Insights\n\n"
+            FINAL+="📊 Performance Insights (High Latency Top 3)\n\n"
 
             SORTED_INSIGHT=$(sort -nr "$TMP_INSIGHT" | head -n 3)
 
