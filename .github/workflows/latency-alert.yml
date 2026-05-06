@@ -1,12 +1,73 @@
-name: Latency Spike Alerts (Final Split System)
+# ==========================================
+# LATENCY SPIKE ALERTS
+# ==========================================
+#
+# Detects high response times from Upptime
+# history files and sends Telegram alerts.
+#
+# Reads:
+#   history/summary.json
+#   history/*.yml
+#
+# ==========================================
+# REQUIRED GITHUB SECRETS
+# ==========================================
+#
+# STATUS_BASE_URL
+#   Base URL for status history pages
+#
+# CHAT_ID
+#   Telegram chat/group ID
+#
+# ALERTS_TOPIC_ID
+#   Telegram forum topic/thread ID
+#
+# SUMMARY_BOT_TOKEN
+#   Telegram bot token
+#
+# SUMMARY_TIMEZONE
+#   Timezone for displayed timestamps
+#
+# Example values:
+#   Asia/Kolkata
+#   Asia/Tokyo
+#   America/New_York
+#   UTC
+#
+# ==========================================
+# CRON NOTES
+# ==========================================
+#
+# GitHub Actions cron uses UTC ONLY.
+#
+# "*/30 * * * *"
+# = every 30 minutes
+#
+# Testing:
+# "*/5 * * * *"
+#
+# Cron helper:
+# https://crontab.guru/
+#
+# ==========================================
+
+name: Latency Spike Alerts
 
 on:
+
+  # ========================================
+  # Every 30 minutes (UTC)
+  # ========================================
   schedule:
     - cron: "*/30 * * * *"
+
+  # ========================================
+  # Manual trigger
+  # ========================================
   workflow_dispatch:
     inputs:
       debug:
-        description: "Force alerts"
+        description: "Force alerts for testing"
         required: false
         default: "false"
 
@@ -15,97 +76,167 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      # ====================================
+      # Checkout repository
+      # ====================================
       - uses: actions/checkout@v4
 
+      # ====================================
+      # Analyze site latency
+      # ====================================
       - name: Analyze latency
         id: analyze
+
         env:
           STATUS_BASE_URL: ${{ secrets.STATUS_BASE_URL }}
           DEBUG_MODE: ${{ github.event.inputs.debug }}
+          SUMMARY_TIMEZONE: ${{ secrets.SUMMARY_TIMEZONE }}
+
         run: |
+
           mkdir -p .cache
 
           FILE="history/summary.json"
+
           TMP_ALL=$(mktemp)
           TMP_ALERT=$(mktemp)
 
           COUNT=$(jq length "$FILE")
 
+          # ==================================
+          # Iterate over monitored sites
+          # ==================================
+
           for i in $(seq 0 $(($COUNT - 1))); do
+
             NAME=$(jq -r ".[$i].name" "$FILE")
             STATUS=$(jq -r ".[$i].status" "$FILE")
             SLUG=$(jq -r ".[$i].slug" "$FILE")
 
+            # Skip DOWN sites
             [ "$STATUS" != "up" ] && continue
 
             YML_FILE="history/$SLUG.yml"
+
+            # Skip missing files
             [ ! -f "$YML_FILE" ] && continue
 
             CURRENT=$(grep 'responseTime:' "$YML_FILE" | awk '{print $2}')
+
+            # Skip empty latency
             [ -z "$CURRENT" ] && continue
 
-            # store all (for insights)
+            # Store all latencies for insights
             echo "$CURRENT|$NAME|$SLUG" >> $TMP_ALL
 
-            # =========================
-            # 🎯 LADDER
-            # =========================
+            # ==================================
+            # LATENCY SEVERITY LADDER
+            #
+            # 🟢 <150ms      Healthy
+            # ⚡ <500ms      Good
+            # ⚠ <1000ms     Moderate
+            # 🚨 <2500ms    Severe
+            # 🛑 2500ms+    Critical
+            # ==================================
+
             if [ "$CURRENT" -lt 150 ]; then
+
               LEVEL="🟢"
               ALERT=0
+
             elif [ "$CURRENT" -lt 500 ]; then
+
               LEVEL="⚡"
               ALERT=0
+
             elif [ "$CURRENT" -lt 1000 ]; then
+
               LEVEL="⚠"
               ALERT=0
+
             elif [ "$CURRENT" -lt 2500 ]; then
+
               LEVEL="🚨"
               ALERT=1
+
             else
+
               LEVEL="🛑"
               ALERT=1
+
             fi
 
-            # debug override (still filter <200 to avoid noise)
+            # ==================================
+            # Debug mode
+            #
+            # Forces alerts >=200ms
+            # Useful for testing Telegram flow
+            # ==================================
+
             if [ "$DEBUG_MODE" = "true" ]; then
+
               if [ "$CURRENT" -ge 200 ]; then
                 ALERT=1
                 LEVEL="🧪"
               else
                 ALERT=0
               fi
+
             fi
 
+            # Skip healthy sites
             [ "$ALERT" -ne 1 ] && continue
 
-            # =========================
-            # ⏳ COOLDOWN
-            # =========================
+            # ==================================
+            # Cooldown logic
+            #
+            # Prevents repeated spam alerts
+            #
+            # Current:
+            # 7200 sec = 2 hours
+            #
+            # NOTE:
+            # GitHub runner cache is ephemeral.
+            # For production-grade persistence,
+            # use artifact/cache/state JSON.
+            # ==================================
+
             COOLDOWN_FILE=".cache/$SLUG"
+
             NOW=$(date +%s)
 
             if [ "$DEBUG_MODE" != "true" ] && [ -f "$COOLDOWN_FILE" ]; then
+
               LAST=$(cat "$COOLDOWN_FILE")
+
               if [ $((NOW - LAST)) -lt 7200 ]; then
                 continue
               fi
+
             fi
 
             echo "$NOW" > "$COOLDOWN_FILE"
 
+            # Store alert candidate
             echo "$CURRENT|$LEVEL|$NAME|$SLUG" >> $TMP_ALERT
 
           done
 
-          # =========================
-          # 🔴 CRITICAL ALERTS (Top 3 ≥1000ms)
-          # =========================
+          # ==================================
+          # Critical alerts
+          #
+          # Only show TOP 3 worst offenders
+          # ==================================
+
           ALERT_BLOCK=""
+
           SORTED_ALERT=$(sort -nr $TMP_ALERT | head -n 3)
 
           INDEX=1
+
           while IFS="|" read -r LAT LEVEL NAME SLUG; do
+
             [ -z "$LAT" ] && continue
 
             ALERT_BLOCK+="$INDEX. $LEVEL $NAME\n"
@@ -113,46 +244,65 @@ jobs:
             ALERT_BLOCK+="   🔗 $STATUS_BASE_URL/$SLUG\n\n"
 
             INDEX=$((INDEX+1))
+
           done <<< "$SORTED_ALERT"
 
-          # =========================
-          # 📊 INSIGHTS (Top 3 overall)
-          # =========================
+          # ==================================
+          # Performance insights
+          #
+          # Shows slowest sites overall
+          # ==================================
+
           INSIGHT_BLOCK="📊 Performance Insights\n\n"
 
           SORTED_ALL=$(sort -nr $TMP_ALL | head -n 3)
 
           while IFS="|" read -r LAT NAME SLUG; do
+
             [ -z "$LAT" ] && continue
 
             INSIGHT_BLOCK+="🌐 $NAME\n"
             INSIGHT_BLOCK+="⚡ $LAT ms\n\n"
+
           done <<< "$SORTED_ALL"
 
-          # =========================
-          # FINAL MESSAGE
-          # =========================
+          # ==================================
+          # Final Telegram message
+          # ==================================
+
           FINAL=""
 
           if [ -n "$ALERT_BLOCK" ]; then
-            FINAL+="🚨 Critical Alerts\n\n$ALERT_BLOCK"
+
+            FINAL+="🚨 Critical Alerts\n\n"
+            FINAL+="$ALERT_BLOCK"
             FINAL+="━━━━━━━━━━━━━━━━━━\n\n"
+
           fi
 
           FINAL+="$INSIGHT_BLOCK"
 
+          LOCAL_TIME=$(TZ="$SUMMARY_TIMEZONE" date +"%d %b %Y | %I:%M %p %Z")
+          UTC_TIME=$(TZ="UTC" date +"%H:%M UTC")
+
+          FINAL+="🕒 $LOCAL_TIME\n"
+          FINAL+="🌍 $UTC_TIME"
+
           echo "alert=true" >> $GITHUB_OUTPUT
+
           echo "msg<<EOF" >> $GITHUB_OUTPUT
           echo -e "$FINAL" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      # ====================================
+      # Send Telegram message
+      # ====================================
       - name: Send Telegram
         run: |
-          MESSAGE="${{ steps.analyze.outputs.msg }}🕒 $(TZ='Asia/Kolkata' date +"%d %b %Y | %I:%M %p IST")"
 
           PAYLOAD=$(jq -n \
             --arg chat_id "${{ secrets.CHAT_ID }}" \
-            --arg text "$MESSAGE" \
+            --arg text "${{ steps.analyze.outputs.msg }}" \
             --argjson thread_id ${{ secrets.ALERTS_TOPIC_ID }} \
             '{
               chat_id: $chat_id,
@@ -161,6 +311,7 @@ jobs:
               disable_web_page_preview: true
             }')
 
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.SUMMARY_BOT_TOKEN }}/sendMessage" \
+          curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.SUMMARY_BOT_TOKEN }}/sendMessage" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD"
