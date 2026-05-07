@@ -8,9 +8,9 @@
     "weekly_spikes": 3
   },
   "personal-lab": {
-    "spikes": 1,
+    "spikes": 0,
     "last_alert": 1778112648,
-    "active": true,
+    "active": false,
     "avg": 215,
     "deviation": 97,
     "weekly_spikes": 4
@@ -18,7 +18,7 @@
   "portfolio-website": {
     "spikes": 0,
     "last_alert": 1778109171,
-    "active": true,
+    "active": false,
     "avg": 2576,
     "deviation": 89,
     "weekly_spikes": 6
