@@ -8,15 +8,15 @@
     "weekly_spikes": 3
   },
   "personal-lab": {
-    "spikes": 0,
-    "last_alert": 1778070894,
-    "active": false,
-    "avg": 279,
-    "deviation": 0,
-    "weekly_spikes": 3
+    "spikes": 1,
+    "last_alert": 1778112648,
+    "active": true,
+    "avg": 215,
+    "deviation": 97,
+    "weekly_spikes": 4
   },
   "portfolio-website": {
-    "spikes": 9,
+    "spikes": 0,
     "last_alert": 1778109171,
     "active": true,
     "avg": 2576,
