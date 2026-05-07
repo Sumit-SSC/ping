@@ -143,7 +143,7 @@ on:
   # Run every 30 minutes
   # ========================================
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/30 * * * *"
 
   # ========================================
   # Manual trigger
@@ -201,7 +201,7 @@ jobs:
           # 20 = 8 PM
           # ==================================
 
-          TARGET_HOUR="10"
+          TARGET_HOUR="07"
 
           CURRENT_HOUR=$(TZ="$SUMMARY_TIMEZONE" date +%H)
 
@@ -219,7 +219,7 @@ jobs:
       - name: Prevent duplicate sends
         run: |
 
-          LAST_RUN_FILE="observability/summary-last-run"
+          LAST_RUN_FILE="observability/summary-last-run.json"
 
           CURRENT_SLOT=$(TZ="$SUMMARY_TIMEZONE" date +%Y-%m-%d-%H)
 
