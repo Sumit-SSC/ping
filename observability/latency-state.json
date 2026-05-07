@@ -18,7 +18,7 @@
   "portfolio-website": {
     "spikes": 0,
     "last_alert": 1778177183,
-    "active": true,
+    "active": false,
     "avg": 1847,
     "deviation": 999,
     "weekly_spikes": 7
