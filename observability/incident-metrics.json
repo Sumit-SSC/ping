@@ -9,13 +9,13 @@
     "mttr": 509
   },
   "testasssa": {
-    "active": true,
-    "last_incident": 1778073534,
-    "incidents": 1,
-    "weekly": 1,
+    "active": false,
+    "last_incident": 1778131971,
+    "incidents": 2,
+    "weekly": 2,
     "flaps": 1,
-    "downtime": 496,
-    "mttr": 496
+    "downtime": 58946,
+    "mttr": 29473
   },
   "my-web": {
     "active": false,
