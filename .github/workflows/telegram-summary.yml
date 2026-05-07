@@ -143,7 +143,7 @@ on:
   # Run every 30 minutes
   # ========================================
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/15 * * * *"
 
   # ========================================
   # Manual trigger
@@ -183,7 +183,7 @@ jobs:
       # ====================================
       - name: Initialize cache
         run: |
-          mkdir -p .cache
+          mkdir -p observability
 
       # ====================================
       # Time gate
@@ -219,7 +219,7 @@ jobs:
       - name: Prevent duplicate sends
         run: |
 
-          LAST_RUN_FILE=".cache/summary-last-run"
+          LAST_RUN_FILE="observability/summary-last-run"
 
           CURRENT_SLOT=$(TZ="$SUMMARY_TIMEZONE" date +%Y-%m-%d-%H)
 
