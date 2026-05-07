@@ -27,7 +27,12 @@
     "mttr": 58411
   },
   "portfolio-page": {
-    "active": true,
-    "last_incident": 1778155343
+    "active": false,
+    "last_incident": 1778155543,
+    "incidents": 1,
+    "weekly": 1,
+    "flaps": 1,
+    "downtime": 201,
+    "mttr": 201
   }
 }
