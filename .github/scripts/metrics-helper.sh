@@ -23,10 +23,13 @@ get_slug() {
   local SITE="$1"
 
   jq -r \
-    --arg site "$SITE" \
-    '.[] | select(.name == $site) | .slug' \
+    --arg site "$(echo "$SITE" | tr '[:upper:]' '[:lower:]')" \
+    '.[] |
+      select((.name | ascii_downcase) == $site) |
+      .slug' \
     history/summary.json
 }
+
 
 # ==========================================
 # Get site URL
