@@ -1,0 +1,164 @@
+# ==========================================
+# ADVANCED INCIDENT ALERT SYSTEM
+# ==========================================
+#
+# Purpose:
+#
+# Sends Telegram alerts for:
+# ✅ Service outages
+# ✅ Service recovery
+# ✅ Incident metrics
+#
+# Built around Upptime issue lifecycle.
+#
+# ==========================================
+# ARCHITECTURE
+# ==========================================
+#
+# Architecture:
+#
+# Upptime handles:
+# - site checks
+# - issue creation
+# - issue closure
+# - uptime tracking
+# - history generation
+#
+# This workflow handles:
+# - Telegram notifications
+# - incident analytics
+# - recovery summaries
+# - degradation analysis
+# - persistent metrics
+#
+# ==========================================
+# REQUIRED GITHUB SECRETS
+# ==========================================
+#
+# INCIDENT_BASE_URL
+#   Base URL for incident pages.
+#   Example:
+#   https://status.example.com/incident
+#
+# STATUS_BASE_URL
+#   Base URL for history pages.
+#   Example:
+#   https://status.example.com/history
+#
+# CHAT_ID
+#   Telegram group/chat ID.
+#   Example:
+#   -1001234567890
+#
+# TOPIC_ID
+#   Telegram forum topic/thread ID.
+#   Example:
+#   12
+#
+# SUMMARY_BOT_TOKEN
+#   Telegram bot token.
+#   Example:
+#   123456789:AAExampleBotTokenHere
+#
+# SUMMARY_TIMEZONE
+#   Display timezone for messages.
+#   Examples:
+#   Asia/Kolkata
+#   Asia/Tokyo
+#   UTC
+#
+# ==========================================
+# STATE FILES
+# ==========================================
+#
+# observability/incident-metrics.json
+#
+# Stores:
+# - incident counts
+# - total downtime
+# - MTTR values
+# - historical metrics
+# - weekly metrics
+# - flap counters
+# - active state
+#
+# This file persists across workflow runs.
+#
+# ==========================================
+# FEATURES
+# ==========================================
+#
+# ✅ Incident open alerts
+# ✅ Recovery alerts
+# ✅ Downtime duration tracking
+# ✅ MTTR tracking
+# ✅ Incident frequency tracking
+# ✅ Weekly reporting
+# ✅ Severity classification
+# ✅ Speed ladder integration
+# ✅ Jitter / degradation indicators
+# ✅ Telegram integration
+# ✅ Persistent metrics storage
+#
+# ==========================================
+# Actual Working Code ⬇️
+# ==========================================
+name: 🚨 Incident Observability
+
+concurrency:
+  group: incident-observability
+  cancel-in-progress: false
+
+on:
+  issues:
+    types:
+      - opened
+      - closed
+
+  workflow_dispatch:
+
+jobs:
+
+  incident:
+
+    if: github.event_name == 'issues'
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize observability DB
+        run: |
+          mkdir -p observability
+
+          [ ! -f observability/incident-metrics.json ] \
+            && echo "{}" > observability/incident-metrics.json
+
+      - name: Run incident intelligence
+        run: |
+
+          chmod +x .github/scripts/*.sh
+
+          if [ "${{ github.event.action }}" = "opened" ]; then
+            bash .github/scripts/incident-open.sh
+          else
+            bash .github/scripts/incident-close.sh
+          fi
+
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          TG_TOKEN: ${{ secrets.SUMMARY_BOT_TOKEN }}
+
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+
+          THREAD_ID: ${{ secrets.ALERTS_TOPIC_ID }}
+
+          INCIDENT_BASE_URL: ${{ secrets.INCIDENT_BASE_URL }}
+
+          STATUS_BASE_URL: ${{ secrets.STATUS_BASE_URL }}
+
+          SUMMARY_TIMEZONE: ${{ secrets.SUMMARY_TIMEZONE }}
