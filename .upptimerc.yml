@@ -69,7 +69,7 @@ status-website:
   # 1. Your custom domain
   cname: status.sumit.indevs.in
   # 2. MUST be / when using a custom domain
-  baseUrl: 
+  baseUrl: /
   # 3. Logo and naming
   logoUrl: https://raw.githubusercontent.com/upptime/upptime.js.org/master/static/img/icon.svg
   name: "Sumit's Portfolio | Service Status"
@@ -112,7 +112,7 @@ status-website:
 # See https://upptime.js.org/docs/configuration
 # Advanced monitoring frequency (optional)
 # commitMessages:
-readmeTick: ":green_heart: Update uptime [skip ci]"
+# readmeTick: ":green_heart: Update uptime [skip ci]"
 # ==========================================
 # Commit messages
 # ==========================================
