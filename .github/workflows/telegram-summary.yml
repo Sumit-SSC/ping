@@ -135,7 +135,7 @@
 # Actual Working Code ⬇️
 # ==========================================
 
-name: Advanced Infrastructure Health Digest
+name: Infrastructure Health Digest
 
 on:
 
