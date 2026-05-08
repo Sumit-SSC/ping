@@ -202,7 +202,7 @@ jobs:
           # 20 = 8 PM
           # ==================================
 
-          TARGET_HOUR="09"
+          TARGET_HOUR="03"
 
           CURRENT_HOUR=$(TZ="$SUMMARY_TIMEZONE" date +%H)
 
