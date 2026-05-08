@@ -167,11 +167,10 @@ UTC_TIME=$(date -u +"%H:%M UTC")
 # Build Telegram message
 # ==========================================
 
-MESSAGE="🚨 Incident Detected
+MESSAGE="🚨 Incident Detected | #️⃣ Incident: #$ISSUE_NUMBER
 
-📡 Status: DOWN
+📡 Status: DOWN | 🧪 Environment: $ENVIRONMENT
 🌐 Site: $SITE | 🔗 : $SITE_URL
-🧪 Environment: $ENVIRONMENT
 
 📈 Uptime: $UPTIME
 📊 Health: $HEALTH
@@ -180,27 +179,23 @@ MESSAGE="🚨 Incident Detected
 📉 Incident Count: $INCIDENTS
 📘 Avg MTTR: $MTTR mins
 
-#️⃣ Incident: #$ISSUE_NUMBER
-
+----------------------------------
 🛠 Probable Cause:
 $RCA
 
 🔍 Suggested Checks:
 $CHECKS
 
-⏳ ETA:
-$ETA
+⏳ ETA: $ETA
 
-$FLAP_WARNING
+⚠️ : $FLAP_WARNING
+-----------------------------------
 
-🔗 Status Dashboard:
-$STATUS_URL
+🔗 : $STATUS_URL
 
-🛠 GitHub Incident:
-$GITHUB_ISSUE_URL
+🛠 : $GITHUB_ISSUE_URL
 
-📄 Incident Archive:
-$INCIDENT_URL
+📄 : $INCIDENT_URL
 
 🕒 $LOCAL_TIME | 🌍 $UTC_TIME"
 
