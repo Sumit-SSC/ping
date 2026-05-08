@@ -42,6 +42,8 @@ INCIDENT_URL="$INCIDENT_BASE_URL/$ISSUE_NUMBER"
 
 STATUS_URL="$STATUS_BASE_URL/$SLUG"
 
+GITHUB_ISSUE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}"
+
 # ==========================================
 # Downtime classification
 # ==========================================
@@ -116,7 +118,7 @@ UTC_TIME=$(date -u +"%H:%M UTC")
 
 MESSAGE="🟢 Incident Resolved
 
-🌐 Site: $SITE
+🌐 Site: $SITE |🔗 : $SITE_URL
 📡 Status: HEALTHY
 📈 Uptime: $UPTIME
 📊 Recovery State: $RECOVERY_STATE
@@ -129,11 +131,14 @@ MESSAGE="🟢 Incident Resolved
 🛠 Recovery Notes:
 $RECOVERY_NOTE
 
-🔗 Incident:
-$INCIDENT_URL
-
-🔗 Status:
+🔗 Status Dashboard:
 $STATUS_URL
+
+🛠 Incident Report:
+$GITHUB_ISSUE_URL
+
+📄 Incident Archive:
+$INCIDENT_URL
 
 🕒 $LOCAL_TIME | 🌍 $UTC_TIME"
 
