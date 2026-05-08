@@ -43,5 +43,9 @@
     "flaps": 1,
     "downtime": 5908,
     "mttr": 5908
+  },
+  "debug-test": {
+    "incidents": 1,
+    "last_down": 1778260838
   }
 }
