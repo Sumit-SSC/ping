@@ -1,0 +1,29 @@
+name: 🧪 Script Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Make scripts executable
+        run: chmod +x .github/scripts/*.sh
+
+      - name: Syntax check
+        run: |
+
+          bash -n .github/scripts/metrics-helper.sh
+          bash -n .github/scripts/rca-engine.sh
+          bash -n .github/scripts/tg-send.sh
+          bash -n .github/scripts/issue-comment.sh
+          bash -n .github/scripts/incident-open.sh
+          bash -n .github/scripts/incident-close.sh
+
+          echo "✅ All scripts valid"
