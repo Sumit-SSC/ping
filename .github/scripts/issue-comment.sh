@@ -1,10 +1,18 @@
 
 #!/usr/bin/env bash
 
-comment_issue() {
+set -e
 
-  local BODY="$1"
+COMMENT="$1"
 
-  gh issue comment "$ISSUE_NUMBER" \
-    --body "$BODY"
-}
+echo "=================================="
+echo "💬 Posting GitHub issue comment"
+echo "=================================="
+
+gh issue comment "$ISSUE_NUMBER" \
+  --body "$COMMENT"
+
+echo "=================================="
+echo "✅ GitHub comment posted"
+echo "=================================="
+
