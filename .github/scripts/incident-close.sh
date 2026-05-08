@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 
-source .github/scripts/metrics-helper.sh
-source .github/scripts/tg-send.sh
-source .github/scripts/issue-comment.sh
+set -e
 
-TITLE="${GITHUB_EVENT_ISSUE_TITLE:-${{ github.event.issue.title }}}"
+source .github/scripts/metrics-helper.sh
+
+TITLE="$ISSUE_TITLE"
 
 SITE=$(echo "$TITLE" \
   | sed -E 's/ is up.*//' \
   | xargs)
+
+echo "Recovered site: $SITE"
 
 SLUG=$(get_slug "$SITE")
 
@@ -44,14 +46,10 @@ MESSAGE="🟢 INCIDENT RESOLVED
 🛠 Recovery Notes:
 $RECOVERY_NOTE"
 
-send_tg "$MESSAGE"
+echo "$MESSAGE"
 
-COMMENT="🤖 Automated Recovery Summary
+# TEMP DEBUG:
+bash .github/scripts/tg-send.sh "$MESSAGE"
 
-MTTR:
-$((MTTR / 60)) mins
-
-Recovery Notes:
-$RECOVERY_NOTE"
-
-comment_issue "$COMMENT"
+# TEMP DEBUG:
+bash .github/scripts/issue-comment.sh "$MESSAGE"
