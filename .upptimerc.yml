@@ -78,6 +78,8 @@ sites:
   #   url: https://example.koj.co
   # - name: my-web
   #   url: test.com
+  - name: Debug-Test
+  url: https://example.invalid
   #
 # ==========================================
 # Status website configuration read here https://upptime.js.org/docs/configuration/#status-website
