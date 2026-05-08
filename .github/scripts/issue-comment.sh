@@ -4,21 +4,38 @@ set -e
 
 COMMENT="$1"
 
+echo "==================================" 
+echo "💬 GitHub Issue Enrichment" 
+echo "=================================="
+
+# ========================================== 
+# Export auth token 
+# ==========================================
+
 export GH_TOKEN="$GH_TOKEN"
 
 echo "=================================="
 echo "💬 Posting GitHub issue comment"
 echo "=================================="
 
+# ========================================== 
+# Debug auth 
+# ========================================== 
+echo "Authenticated GitHub user:" 
+gh auth status || true
+
 # ==========================================
-# Add comment
+# Add/Post issue comment
 # ==========================================
+
+echo "Posting issue comment..."
 
 gh issue comment "$ISSUE_NUMBER" \
   --body "$COMMENT"
+echo "✅ Issue comment posted"
 
 # ==========================================
-# Auto labels
+# Add Auto labels
 # ==========================================
 
 LABELS=()
@@ -53,12 +70,16 @@ fi
 # Apply labels
 # ==========================================
 
+echo "Applying observability labels..."
+
 for LABEL in "${LABELS[@]}"; do
 
   gh issue edit "$ISSUE_NUMBER" \
     --add-label "$LABEL" || true
 
 done
+
+echo "✅ Labels applied"
 
 echo "=================================="
 echo "✅ GitHub enrichment completed"
