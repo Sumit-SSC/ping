@@ -3,14 +3,10 @@
 set -e
 
 # ==========================================
-# Shared observability helper functions
+# Observability metrics DB
 # ==========================================
 
 DB="observability/incident-metrics.json"
-
-# ==========================================
-# Ensure DB exists
-# ==========================================
 
 mkdir -p observability
 
@@ -19,7 +15,7 @@ if [ ! -f "$DB" ]; then
 fi
 
 # ==========================================
-# Get site slug
+# Get slug
 # ==========================================
 
 get_slug() {
@@ -65,15 +61,15 @@ get_uptime() {
 
   local SITE="$1"
 
-  UPTIME=$(jq -r \
+  VALUE=$(jq -r \
     --arg site "$SITE" \
     '.[] | select(.name == $site) | .uptime' \
     history/summary.json)
 
-  if [ -z "$UPTIME" ] || [ "$UPTIME" = "null" ]; then
+  if [ -z "$VALUE" ] || [ "$VALUE" = "null" ]; then
     echo "Unknown"
   else
-    echo "$UPTIME"
+    echo "$VALUE"
   fi
 }
 
@@ -107,4 +103,81 @@ get_incidents() {
     "$DB")
 
   echo "${VALUE:-0}"
+}
+
+# ==========================================
+# Increment incident count
+# ==========================================
+
+increment_incidents() {
+
+  local SLUG="$1"
+
+  TMP=$(mktemp)
+
+  jq \
+    --arg slug "$SLUG" \
+    '.[$slug].incidents = ((.[$slug].incidents // 0) + 1)' \
+    "$DB" > "$TMP"
+
+  mv "$TMP" "$DB"
+}
+
+# ==========================================
+# Store outage timestamp
+# ==========================================
+
+store_outage_start() {
+
+  local SLUG="$1"
+
+  NOW=$(date +%s)
+
+  TMP=$(mktemp)
+
+  jq \
+    --arg slug "$SLUG" \
+    --argjson now "$NOW" \
+    '.[$slug].last_down = $now' \
+    "$DB" > "$TMP"
+
+  mv "$TMP" "$DB"
+}
+
+# ==========================================
+# Calculate MTTR
+# ==========================================
+
+calculate_mttr() {
+
+  local SLUG="$1"
+
+  NOW=$(date +%s)
+
+  START=$(jq -r \
+    --arg slug "$SLUG" \
+    '.[$slug].last_down // 0' \
+    "$DB")
+
+  if [ "$START" -gt 0 ]; then
+
+    DURATION=$((NOW - START))
+
+    TMP=$(mktemp)
+
+    jq \
+      --arg slug "$SLUG" \
+      --argjson mttr "$DURATION" \
+      '.[$slug].mttr = $mttr' \
+      "$DB" > "$TMP"
+
+    mv "$TMP" "$DB"
+
+    echo "$DURATION"
+
+  else
+
+    echo "0"
+
+  fi
 }
