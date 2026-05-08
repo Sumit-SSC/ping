@@ -19,20 +19,51 @@ echo "💬 Posting GitHub issue comment"
 echo "=================================="
 
 # ========================================== 
-# Debug auth 
+# Wait for issue indexing 
+# ========================================== 
+
+echo "Waiting for GitHub issue sync..." 
+sleep 10
+
+# ========================================== 
+# Debug auth/ Verify Authentication 
 # ========================================== 
 echo "Authenticated GitHub user:" 
 gh auth status || true
 
 # ==========================================
-# Add/Post issue comment
+# Add/Post issue comment with retry logic
 # ==========================================
+# echo "Posting issue comment..."
 
-echo "Posting issue comment..."
+# gh issue comment "$ISSUE_NUMBER" \
+#   --body "$COMMENT"
+# echo "✅ Issue comment posted"
 
-gh issue comment "$ISSUE_NUMBER" \
-  --body "$COMMENT"
-echo "✅ Issue comment posted"
+MAX_RETRIES=5
+
+RETRY=1
+
+while [ $RETRY -le $MAX_RETRIES ]; do
+
+  echo "Attempt $RETRY to post issue comment..."
+
+  if gh issue comment "$ISSUE_NUMBER" \
+      --body "$COMMENT"; then
+
+    echo "✅ GitHub comment posted"
+
+    break
+
+  fi
+
+  echo "⚠️ Comment failed. Retrying..."
+
+  sleep 5
+
+  RETRY=$((RETRY + 1))
+
+done
 
 # ==========================================
 # Add Auto labels
