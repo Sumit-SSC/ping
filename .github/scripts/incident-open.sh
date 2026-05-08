@@ -96,6 +96,7 @@ UTC_TIME=$(date -u +"%H:%M UTC")
 MESSAGE="🚨 Incident Detected
 
 🌐 Site: $SITE
+🔗 Endpoint: $SITE_URL
 🧪 Environment: $ENVIRONMENT
 📡 Status: DOWN
 📈 Uptime: $UPTIME
@@ -135,6 +136,9 @@ echo "$MESSAGE"
 # ==========================================
 
 COMMENT="## 🚨 Automated Incident Analysis
+
+🌐 Site: $SITE |🔗 Endpoint: $SITE_URL 
+
 
 | Metric | Value |
 |---|---|
