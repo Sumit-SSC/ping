@@ -63,6 +63,9 @@ INCIDENT_URL="$INCIDENT_BASE_URL/$ISSUE_NUMBER"
 
 STATUS_URL="$STATUS_BASE_URL/$SLUG"
 
+GITHUB_ISSUE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}"
+
+
 # ==========================================
 # Health classification
 # ==========================================
@@ -95,8 +98,7 @@ UTC_TIME=$(date -u +"%H:%M UTC")
 
 MESSAGE="🚨 Incident Detected
 
-🌐 Site: $SITE
-🔗 Endpoint: $SITE_URL
+🌐 Site: $SITE |🔗 : $SITE_URL
 🧪 Environment: $ENVIRONMENT
 📡 Status: DOWN
 📈 Uptime: $UPTIME
@@ -115,11 +117,15 @@ $CHECKS
 ⏳ ETA:
 $ETA
 
-🔗 Incident:
+🔗 Status Dashboard:
+$STATUS_URL
+
+🛠 Incident Report:
+$GITHUB_ISSUE_URL
+
+📄 Incident Archive:
 $INCIDENT_URL
 
-🔗 Status:
-$STATUS_URL
 
 🕒 $LOCAL_TIME | 🌍 $UTC_TIME"
 
