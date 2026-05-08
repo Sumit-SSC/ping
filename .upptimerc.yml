@@ -1,3 +1,21 @@
+# ==========================================
+# UPPTIME CONFIGURATION
+# ==========================================
+#
+# Main configuration file for:
+# - uptime monitoring
+# - status website generation
+# - README generation
+# - GitHub Actions workflows
+#
+# File:
+# .upptimerc.yml
+#
+# ==========================================
+
+# ==========================================
+# Repository owner + repo name
+# ==========================================
 # Change these first
 owner: Sumit-SC # Your GitHub organization or username, where this repository lives
 repo: ping # The name of this repository
@@ -9,6 +27,9 @@ workflow-schedule:
 # # Global settings (applies to all sites)
 # user-agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
+# ==========================================
+# Sites to monitor
+# ==========================================
 sites:
   - name: Portfolio Page
     url: https://sumit-sc.github.io
@@ -39,7 +60,10 @@ sites:
   #   url: https://example.koj.co
   # - name: my-web
   #   url: test.com
-  # ===================================================
+  #
+# ==========================================
+# Status website configuration
+# ==========================================
     
 status-website:
   # 1. Your custom domain
@@ -50,7 +74,14 @@ status-website:
   logoUrl: https://raw.githubusercontent.com/upptime/upptime.js.org/master/static/img/icon.svg
   name: "Sumit's Portfolio | Service Status"
   introTitle: "**Service Status** for my web applications, powered by Upptime and a status page, powered entirely by GitHub."
-  introMessage: This page monitors the uptime and response time of my portfolio and core services.
+  introMessage: |
+    Real-time infrastructure monitoring powered by:
+    - Upptime
+    - GitHub Actions
+    - Telegram alerting
+    - Observability analytics
+    • This page monitors the uptime and response time of my portfolio and core services.
+
 #   name: 'Sumit’s Portfolio<br />Service Status'
 # status-website:
 #   # Add your custom domain name, or remove the `cname` line if you don't have a domain
@@ -81,4 +112,89 @@ status-website:
 # See https://upptime.js.org/docs/configuration
 # Advanced monitoring frequency (optional)
 # commitMessages:
-# readmeTick: ":green_heart: Update uptime [skip ci]"
+readmeTick: ":green_heart: Update uptime [skip ci]"
+# ==========================================
+# Commit messages
+# ==========================================
+
+commitMessages:
+
+  commitAuthorName: "observability-bot"
+
+  commitAuthorEmail: "actions@github.com"
+
+  summary: "📊 Update infrastructure summary"
+
+  statusChange: "📡 {{name}} is {{status}}"
+
+# ==========================================
+# Advanced monitoring settings
+# ==========================================
+
+i18n:
+
+  activeIncidents: Active Incidents
+
+  allSystemsOperational: All systems operational
+
+  incidentReport: Incident Report
+
+  activeIncidentSummary: |
+    Opened at {{date}}
+    with {{upptime}}
+
+# ==========================================
+# Response time chart settings
+# ==========================================
+
+skipDescriptionUpdate: false
+
+skipTopicsUpdate: false
+
+skipHomepageUpdate: false
+
+skipStatusWebsiteUpdate: false
+
+skipReadme: false
+
+skipGraphs: false
+
+# ==========================================
+# CUSTOM OBSERVABILITY NOTES
+# ==========================================
+#
+# Your custom workflows:
+#
+# - summary.yml
+# - latency-alerts.yml
+# - incident-alerts.yml
+#
+# are separate from Upptime core.
+#
+# Keep custom logic inside:
+#
+# observability/
+#
+# NOT history/
+#
+# ==========================================
+# ==========================================
+# OPTIONAL:
+# Custom status website theme
+# ==========================================
+
+theme: dark
+
+# ==========================================
+# README TEMPLATE SUPPORT
+# ==========================================
+#
+# IMPORTANT:
+# Create:
+#
+# README.tpl
+#
+# So Upptime does NOT erase
+# your custom README sections.
+#
+# ==========================================
