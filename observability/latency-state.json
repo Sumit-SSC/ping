@@ -48,12 +48,12 @@
     "weekly_spikes": 5
   },
   "test-shopping": {
-    "spikes": 4,
-    "last_alert": 1778246820,
+    "spikes": 5,
+    "last_alert": 1778259026,
     "active": true,
     "avg": 1,
     "deviation": 999,
-    "weekly_spikes": 2
+    "weekly_spikes": 3
   },
   "debug-app": {
     "spikes": 1,
@@ -64,7 +64,7 @@
     "weekly_spikes": 1
   },
   "my-web": {
-    "spikes": 3,
+    "spikes": 4,
     "last_alert": 1778252890,
     "active": true,
     "avg": 1,
