@@ -239,3 +239,47 @@ calculate_mttr() {
 
   fi
 }
+
+# ==========================================
+# Update rolling MTTR
+# ==========================================
+
+update_mttr() {
+
+  local SLUG="$1"
+
+  local NEW_MTTR="$2"
+
+  CURRENT=$(jq -r \
+    --arg slug "$SLUG" \
+    '.[$slug].mttr // 0' \
+    "$DB")
+
+  INCIDENTS=$(get_incidents "$SLUG")
+
+  # ========================================
+  # First incident
+  # ========================================
+
+  if [ "$INCIDENTS" -le 1 ]; then
+
+    AVG="$NEW_MTTR"
+
+  else
+
+    AVG=$(((CURRENT + NEW_MTTR) / 2))
+
+  fi
+
+  TMP=$(mktemp)
+
+  jq \
+    --arg slug "$SLUG" \
+    --argjson mttr "$AVG" \
+    '.[$slug].mttr = $mttr' \
+    "$DB" > "$TMP"
+
+  mv "$TMP" "$DB"
+
+  echo "Updated MTTR: $AVG mins"
+}
