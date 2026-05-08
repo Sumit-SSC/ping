@@ -31,6 +31,8 @@ LATENCY=$(get_latency "$SLUG")
 
 UPTIME=$(get_uptime "$SITE")
 
+SITE_URL=$(get_site_url "$SITE")
+
 INCIDENTS=$(get_incidents "$SLUG")
 
 MTTR=$(get_mttr "$SLUG")
