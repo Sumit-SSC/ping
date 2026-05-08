@@ -1,14 +1,15 @@
-# [📈 Live Status](https://demo.upptime.js.org): <!--live status--> **🟩 All systems operational**
-
 # 📡 Infrastructure Observability Stack
 
 ## 🚀 Monitoring Pipelines
 
 | Workflow              | Status                                                                               |
 | --------------------- | ------------------------------------------------------------------------------------ |
-| Infrastructure Digest | ![](https://github.com/Shsy/pinushg/actions/workflows/summary.yml/badge.svg)         |
-| Latency Alerts        | ![](https://github.com/Shsy/pinushg/actions/workflows/latency-alerts.yml/badge.svg)  |
-| Incident Alerts       | ![](https://github.com/Shsy/pinushg/actions/workflows/incident-alerts.yml/badge.svg) |
+| Infrastructure Digest | [![Advanced Infrastructure Health Digest](https://github.com/Sumit-SC/ping/actions/workflows/telegram-summary.yml/badge.svg)](https://github.com/Sumit-SC/ping/actions/workflows/telegram-summary.yml)        |
+| Latency Alerts        | [![Advanced Latency Observability](https://github.com/Sumit-SC/ping/actions/workflows/latency-alert.yml/badge.svg)](https://github.com/Sumit-SC/ping/actions/workflows/latency-alert.yml)       |
+| Incident Alerts       | [![Advanced Incident Observability](https://github.com/Sumit-SC/ping/actions/workflows/incident-alert.yml/badge.svg)](https://github.com/Sumit-SC/ping/actions/workflows/incident-alert.yml) |
+
+# [📈 Live Status](https://demo.upptime.js.org): <!--live status--> **🟩 All systems operational**
+
 
 This repository contains the open-source uptime monitor and status page for [Sumit S. Chaure](https://github.com/Sumit-SC), powered by [Upptime](https://github.com/upptime/upptime).
 
