@@ -155,7 +155,7 @@
 # Actual Working Code ⬇️
 # ==========================================
 
-name: Advanced Incident Observability
+name: Incident Observability
 
 # ==========================================
 # Prevent simultaneous writes
