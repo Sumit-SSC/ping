@@ -28,18 +28,35 @@ workflow-schedule:
 # user-agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 # ==========================================
-# Sites to monitor
+# Sites to monitor Configuration
+# Pattern to follow only need name & url if u want to add logo say site does not have favicon can do that 
+# - name: Page
+#   url: https://xyz.com
+#   icon: https://i.ibb.co/abc.png
+#   type: globalping # https://upptime.js.org/docs/configuration/#globalping
+#   location: california # Location to run the check from. Optional. Default is "World"
+#   method: GET  # Force GET request (HEAD is often blocked) [optional]
+#   headers: #[Optional]
+#     - "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+#     - "Accept-Language: en-US,en;q=0.5"
+#     - "Cache-Control: no-cache"
+#     - "Pragma: no-cache"
+#   assignees: # Users to assign downtime issues automatically if sites goes down & ping them (optional)
+#     - @gitname
+# ==========================================
+#   Secret URLs#
+#   If you don't want to show a URL publicly, you can use repository secrets 
+#   (see Creating and storing encrypted secrets). Instead of the plain text URL, 
+#   add the name of the secret prefixed with a $ character:
+#   - name: Secret Site
+#     url: $SECRET_SITE
 # ==========================================
 sites:
   - name: Portfolio Page
     url: https://sumit-sc.github.io
+    type: globalping
+    location: india # Location to run the check from. Optional. Default is "World"
     icon: https://i.ibb.co/ZpH1RStQ/business-1991029.png
-    # method: GET  # Force GET request (HEAD is often blocked)
-    # headers:
-    #   - "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
-    #   - "Accept-Language: en-US,en;q=0.5"
-    #   - "Cache-Control: no-cache"
-    #   - "Pragma: no-cache"
   - name: Personal-Lab
     url: http://www.colab.indevs.in
     icon: https://i.ibb.co/k6GgHg8J/photo-2026-02-13-17-47-19.jpg
@@ -53,7 +70,8 @@ sites:
   - name: Streamio
     url: https://idx.theworkpc.com
     icon: https://i.postimg.cc/XqWnmDXr/Picsart-25-10-09-08-09-45-867.png
-    # Offline Site to test for outage alert-checks
+    
+  # # Offline Site to test for outage alert-checks
   # - name: Shoppingssss
   #   url: https//Shopping.com
   # - name: testasssa
@@ -62,37 +80,45 @@ sites:
   #   url: test.com
   #
 # ==========================================
-# Status website configuration
+# Status website configuration read here https://upptime.js.org/docs/configuration/#status-website
+# # Basic config (name & url rest are optional params if it fails try adding baseUrl: & navbar for navigation pages)
+# status-website:
+#  cname: xyz.abc.com (optional - will take github io page if not given any custom domian to host the pages)
+#  name: some name for stats page
+#  logo: url for page logo
+# # Custom status website theme Available themes are light, dark, night or ocean. 
+#  theme: ocean # default to dark if not mentioned or commented
+#  introTitle: "**Upptime** is the open-source uptime monitor and status page, powered entirely by GitHub."
+#  introMessage: This is a sample status page which uses **real-time** data from our [Github repository](https://github.com/koj-co/upptime). No server required — just GitHub Actions, Issues, and Pages.
+# # https://upptime.js.org/docs/configuration/#intro-text
+#  navbar: # optional https://upptime.js.org/docs/configuration/#navbar-links
+#    - title: Status
+#      href: /
+#    - title: GitHub
+#      href: https://github.com/$OWNER/$REPO
 # ==========================================
     
 status-website:
   # 1. Your custom domain
-  cname: status.sumit.indevs.in
-  # 2. MUST be / when using a custom domain
-  baseUrl: /
-  # 3. Logo and naming
+  cname: status.sumit.indevs.in # Custom domain CNAME
+  # 2. MUST be / when using a custom domain or # baseUrl: /repo
+  # baseUrl: /   
+  # 3. Naming, Logo, theme, intro and navbar 
+  name: "Sumit's Portfolio | Service Status" # Status website title
   logoUrl: https://raw.githubusercontent.com/upptime/upptime.js.org/master/static/img/icon.svg
-  name: "Sumit's Portfolio | Service Status"
+  theme: ocean
   introTitle: "**Service Status** for my web applications, powered by Upptime and a status page, powered entirely by GitHub."
-  introMessage: |
-    Real-time infrastructure monitoring powered by:
-    - Upptime
-    - GitHub Actions
-    - Telegram alerting
-    - Observability analytics
-    • This page monitors the uptime and response time of my portfolio and core services.
-
-#   name: 'Sumit’s Portfolio<br />Service Status'
-# status-website:
-#   # Add your custom domain name, or remove the `cname` line if you don't have a domain
-#   # Uncomment the `baseUrl` line if you don't have a custom domain and add your repo name there
-#   # cname: demo.upptime.js.org
-#   # baseUrl: /your-repo-name
-#   baseUrl: /ping
-#   logoUrl: https://raw.githubusercontent.com/upptime/upptime.js.org/master/static/img/icon.svg
-#   # name: "Sumit's Portfolio<br />Service Status"
+  # introMessage: |
+  #   Real-time infrastructure monitoring powered by:
+  #   - Upptime
+  #   - GitHub Actions
+  #   - Telegram alerting
+  #   - Observability analytics
+  #   • This page monitors the uptime and response time of my portfolio and core services.
+  # ==========================================
+  #
   
-  navbar:
+  navbar: # 4 is the safe point or the page ui distorts if titles are large 
     - title: Portfolio Website
       href: https://www.sumit.indevs.in
     - title: Server Stats
@@ -109,7 +135,7 @@ status-website:
       href: https://upptime.js.org/
 
 # Upptime also supports notifications, assigning issues, and more
-# See https://upptime.js.org/docs/configuration
+# See https://upptime.js.org/docs/configuration & https://upptime.js.org/docs/configuration/#repository-metadata
 # Advanced monitoring frequency (optional)
 # commitMessages:
 # readmeTick: ":green_heart: Update uptime [skip ci]"
@@ -119,45 +145,53 @@ status-website:
 
 commitMessages:
 
-  commitAuthorName: "observability-bot"
+  commitAuthorName: "observability-bot & Upptime Bot"
 
-  commitAuthorEmail: "actions@github.com"
+  commitAuthorEmail: "actions@github.com, mitsu@duck.com & upptime@koj.co"
+
+  readmeContent: ":pencil: Update summary in README [skip ci] [upptime]"
+  summaryJson: ":card_file_box: Update status summary [skip ci] [upptime]"
+
 
   summary: "📊 Update infrastructure summary"
 
   statusChange: "📡 {{name}} is {{status}}"
+  # statusChange: "$EMOJI $SITE_NAME is $STATUS ($RESPONSE_CODE in $RESPONSE_TIME ms) [skip ci] [upptime]"
+  graphsUpdate: ":bento: Update graphs [skip ci] [upptime]"
+
 
 # ==========================================
-# Advanced monitoring settings
+# Advanced monitoring settings https://upptime.js.org/docs/configuration/#internationalization
 # ==========================================
 
-i18n:
+# i18n:
 
-  activeIncidents: Active Incidents
+#   activeIncidents: Active Incidents
 
-  allSystemsOperational: All systems operational
+#   allSystemsOperational: All systems operational
 
-  incidentReport: Incident Report
+#   incidentReport: Incident Report
 
-  activeIncidentSummary: |
-    Opened at {{date}}
-    with {{upptime}}
+#   activeIncidentSummary: |
+#     Opened at {{date}}
+#     with {{upptime}}
 
 # ==========================================
-# Response time chart settings
+# Response time chart settings https://upptime.js.org/docs/configuration/#repository-metadata 
+# By default they are false so no need to add them in below config unless u want to toggle them manually.
 # ==========================================
 
-skipDescriptionUpdate: false
+# skipDescriptionUpdate: false
 
-skipTopicsUpdate: false
+# skipTopicsUpdate: false
 
-skipHomepageUpdate: false
+# skipHomepageUpdate: false
 
-skipStatusWebsiteUpdate: false
+# skipStatusWebsiteUpdate: false
 
-skipReadme: false
+# skipReadme: false
 
-skipGraphs: false
+# skipGraphs: false
 
 # ==========================================
 # CUSTOM OBSERVABILITY NOTES
@@ -177,13 +211,6 @@ skipGraphs: false
 #
 # NOT history/
 #
-# ==========================================
-# ==========================================
-# OPTIONAL:
-# Custom status website theme
-# ==========================================
-
-theme: dark
 
 # ==========================================
 # README TEMPLATE SUPPORT
