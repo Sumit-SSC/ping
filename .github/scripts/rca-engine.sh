@@ -1,8 +1,33 @@
 #!/usr/bin/env bash
 
+# ==========================================
+# RCA / Root Cause Analysis Engine
+# ==========================================
+#
+# Purpose:
+#
+# Generates:
+# - probable root cause
+# - suggested operator checks
+# - estimated recovery window
+# - severity classification
+#
+# Inputs:
+# - site name
+# - latency
+#
+# Outputs:
+# - RCA
+# - CHECKS
+# - ETA
+# - SEVERITY
+#
+# ==========================================
+
 generate_rca() {
 
   local SITE="$1"
+
   local LATENCY="$2"
 
   RCA=""
@@ -10,21 +35,23 @@ generate_rca() {
   ETA=""
   SEVERITY="⚠️ Minor"
 
-  LOWER=$(echo "$SITE" | tr '[:upper:]' '[:lower:]')
+  LOWER=$(echo "$SITE" \
+    | tr '[:upper:]' '[:lower:]')
 
   # ========================================
-  # TEST / STAGING
+  # TEST / STAGING ENVIRONMENTS
   # ========================================
 
   if [[ "$LOWER" =~ test|debug|sandbox|staging|dev ]]; then
 
-    RCA="Possible deployment/testing instability."
+    RCA="Possible deployment or testing instability detected."
 
     CHECKS="• Verify CI/CD pipelines
-• Check API endpoints
-• Review deployment logs
-• Inspect recent commits
-• Validate feature toggles"
+• Inspect deployment logs
+• Review recent commits
+• Validate API endpoints
+• Check feature flags
+• Inspect staging environment health"
 
     ETA="Likely short-lived"
 
@@ -34,17 +61,18 @@ generate_rca() {
   fi
 
   # ========================================
-  # PUBLIC / CDN SITES
+  # LARGE PUBLIC SERVICES / CDN
   # ========================================
 
-  if [[ "$LOWER" =~ google|wikipedia|github ]]; then
+  if [[ "$LOWER" =~ google|wikipedia|github|cloudflare|amazon|flipkart|youtube|instagram ]]; then
 
-    RCA="Likely CDN or provider-side instability."
+    RCA="Likely provider-side instability or CDN routing disruption."
 
     CHECKS="• Retry from another network
-• Verify local DNS
+• Validate local DNS resolution
 • Check public outage trackers
-• Validate ISP connectivity"
+• Verify ISP connectivity
+• Monitor CDN/provider status pages"
 
     ETA="Usually transient"
 
@@ -55,19 +83,25 @@ generate_rca() {
 
   # ========================================
   # UNKNOWN LATENCY
+  # Usually:
+  # - DNS
+  # - SSL
+  # - hard outage
+  # - upstream timeout
   # ========================================
 
   if [ "$LATENCY" = "unknown" ]; then
 
-    RCA="DNS resolution or upstream connectivity issue."
+    RCA="DNS resolution failure or upstream connectivity disruption."
 
     CHECKS="• Verify DNS records
 • Check SSL certificates
 • Inspect Cloudflare dashboard
 • Validate hosting provider health
+• Verify reverse proxy routing
 • Test server reachability"
 
-    ETA="Dependent on provider recovery"
+    ETA="Dependent on infrastructure/provider recovery"
 
     SEVERITY="🛑 Critical"
 
@@ -75,23 +109,62 @@ generate_rca() {
   fi
 
   # ========================================
-  # MASSIVE LATENCY
+  # Invalid latency fallback
   # ========================================
 
-  if [ "$LATENCY" -gt 3000 ]; then
+  if ! [[ "$LATENCY" =~ ^[0-9]+$ ]]; then
 
-    RCA="Progressive backend degradation or infrastructure overload."
+    RCA="Telemetry corruption or invalid latency metrics detected."
 
-    CHECKS="• Check CPU/RAM usage
-• Inspect reverse proxy health
-• Verify database performance
-• Review Cloudflare analytics
-• Monitor hosting metrics
-• Inspect deployment changes"
+    CHECKS="• Verify monitoring agents
+• Inspect telemetry ingestion
+• Validate Upptime history files
+• Check observability persistence"
+
+    ETA="Monitoring telemetry recovery"
+
+    SEVERITY="⚠️ Minor"
+
+    return
+  fi
+
+  # ========================================
+  # CRITICAL LATENCY
+  # ========================================
+
+  if [ "$LATENCY" -gt 5000 ]; then
+
+    RCA="Severe infrastructure overload or upstream service collapse."
+
+    CHECKS="• Check server CPU/RAM utilization
+• Inspect database saturation
+• Validate reverse proxy health
+• Review hosting provider metrics
+• Check DDoS / traffic spikes
+• Verify deployment stability
+• Inspect upstream APIs"
+
+    ETA="15–45 mins"
+
+    SEVERITY="🛑 Critical"
+
+  # ========================================
+  # MAJOR LATENCY
+  # ========================================
+
+  elif [ "$LATENCY" -gt 3000 ]; then
+
+    RCA="Progressive backend degradation or infrastructure instability."
+
+    CHECKS="• Review application logs
+• Inspect resource utilization
+• Monitor upstream dependencies
+• Validate database responsiveness
+• Check container orchestration health"
 
     ETA="10–30 mins"
 
-    SEVERITY="🛑 Critical"
+    SEVERITY="🚨 Major"
 
   # ========================================
   # HIGH LATENCY
@@ -101,46 +174,81 @@ generate_rca() {
 
     RCA="High upstream latency and degraded application responsiveness."
 
-    CHECKS="• Review application logs
-• Verify API response times
-• Monitor network bottlenecks
-• Inspect resource utilization"
+    CHECKS="• Verify API response times
+• Inspect hosting stability
+• Review network bottlenecks
+• Monitor DNS performance
+• Inspect cache/CDN behavior"
 
     ETA="5–15 mins"
 
     SEVERITY="🚨 Major"
 
   # ========================================
-  # MEDIUM LATENCY
+  # MODERATE LATENCY
   # ========================================
 
   elif [ "$LATENCY" -gt 700 ]; then
 
-    RCA="Elevated latency detected before outage."
+    RCA="Elevated latency detected prior to outage event."
 
     CHECKS="• Verify upstream APIs
-• Inspect hosting stability
-• Monitor DNS health"
+• Inspect hosting health
+• Review transient traffic spikes
+• Monitor DNS health
+• Validate SSL handshakes"
 
-    ETA="Monitoring recovery"
+    ETA="Monitoring stabilization"
 
     SEVERITY="⚠️ Moderate"
 
   # ========================================
   # LOW LATENCY FAILURE
+  # Usually:
+  # - transient networking
+  # - SSL handshake
+  # - brief routing issue
   # ========================================
 
   else
 
-    RCA="Temporary connectivity instability."
+    RCA="Temporary network instability or transient connectivity disruption."
 
-    CHECKS="• Verify SSL validity
+    CHECKS="• Verify SSL certificate validity
 • Inspect routing/network path
-• Review transient connectivity"
+• Review transient connectivity issues
+• Validate upstream reachability"
 
     ETA="Likely transient"
 
     SEVERITY="⚠️ Minor"
 
+  fi
+
+  # ========================================
+  # Flapping signal enrichment
+  # ========================================
+
+  if [ -f "observability/incident-metrics.json" ]; then
+
+    FLAP_COUNT=$(jq -r \
+      --arg slug "$(echo "$LOWER" | sed 's/ /-/g')" \
+      '.[$slug].incidents // 0' \
+      observability/incident-metrics.json)
+
+    if [ "$FLAP_COUNT" -gt 5 ]; then
+
+      RCA="$RCA
+
+Repeated instability patterns detected over historical monitoring."
+
+      CHECKS="$CHECKS
+• Inspect recurring failure patterns
+• Validate autoscaling behavior
+• Review historical incident trends"
+
+      ETA="Potential recurring infrastructure instability"
+
+    fi
   fi
 }
