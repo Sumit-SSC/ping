@@ -160,10 +160,12 @@ jobs:
     # ======================================
 
     env:
-
+      # ======================================
+      # GitHub PAT
+      # ======================================
       # GitHub CLI auth
       # GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
+      GH_TOKEN: ${{ secrets.GH_PAT }}
 
 
       # Telegram
@@ -182,6 +184,13 @@ jobs:
       ISSUE_TITLE: ${{ github.event.issue.title }}
       ISSUE_NUMBER: ${{ github.event.issue.number }}
       ISSUE_ACTION: ${{ github.event.action }}
+      
+      ISSUE_CREATED_AT: ${{ github.event.issue.created_at }}
+      ISSUE_CLOSED_AT: ${{ github.event.issue.closed_at }}
+
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_SERVER_URL: ${{ github.server_url }}
+
 
     steps:
 
