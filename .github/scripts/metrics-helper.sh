@@ -29,6 +29,26 @@ get_slug() {
 }
 
 # ==========================================
+# Get site URL
+# ==========================================
+
+get_site_url() {
+
+  local SITE="$1"
+
+  URL=$(yq e \
+    ".sites[] | select(.name == \"$SITE\") | .url" \
+    .upptimerc.yml)
+
+  if [ -z "$URL" ] || [ "$URL" = "null" ]; then
+    echo "Unknown"
+  else
+    echo "$URL"
+  fi
+}
+
+
+# ==========================================
 # Get latency
 # ==========================================
 
