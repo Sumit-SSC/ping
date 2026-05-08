@@ -8,7 +8,7 @@
     "weekly_spikes": 5
   },
   "personal-lab": {
-    "spikes": 1,
+    "spikes": 0,
     "last_alert": 1778260672,
     "active": true,
     "avg": 1081,
@@ -16,7 +16,7 @@
     "weekly_spikes": 8
   },
   "portfolio-website": {
-    "spikes": 1,
+    "spikes": 0,
     "last_alert": 1778260672,
     "active": true,
     "avg": 980,
@@ -40,7 +40,7 @@
     "weekly_spikes": 5
   },
   "streamio": {
-    "spikes": 1,
+    "spikes": 0,
     "last_alert": 1778260672,
     "active": true,
     "avg": 1071,
