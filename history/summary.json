@@ -5,11 +5,11 @@
     "icon": "https://i.ibb.co/ZpH1RStQ/business-1991029.png",
     "slug": "portfolio-page",
     "status": "up",
-    "uptime": "91.82%",
+    "uptime": "91.87%",
     "uptimeDay": "100.00%",
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
-    "uptimeYear": "91.82%",
+    "uptimeYear": "91.87%",
     "time": 589,
     "timeDay": 366,
     "timeWeek": 706,
@@ -37,11 +37,11 @@
     "icon": "https://i.ibb.co/k6GgHg8J/photo-2026-02-13-17-47-19.jpg",
     "slug": "personal-lab",
     "status": "up",
-    "uptime": "61.94%",
+    "uptime": "62.22%",
     "uptimeDay": "100.00%",
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
-    "uptimeYear": "61.94%",
+    "uptimeYear": "62.22%",
     "time": 409,
     "timeDay": 4484,
     "timeWeek": 473,
@@ -146,9 +146,9 @@
     "url": "https://idx.theworkpc.com",
     "icon": "https://i.postimg.cc/XqWnmDXr/Picsart-25-10-09-08-09-45-867.png",
     "slug": "streamio",
-    "status": "up",
+    "status": "down",
     "uptime": "100.00%",
-    "uptimeDay": "100.00%",
+    "uptimeDay": "99.99%",
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "100.00%",
@@ -157,6 +157,8 @@
     "timeWeek": 1417,
     "timeMonth": 1417,
     "timeYear": 1417,
-    "dailyMinutesDown": {}
+    "dailyMinutesDown": {
+      "2026-05-11": 0
+    }
   }
 ]
