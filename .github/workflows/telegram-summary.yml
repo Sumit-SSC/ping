@@ -205,7 +205,7 @@ jobs:
           # Desired LOCAL delivery hour
           # ==================================
 
-          TARGET_HOUR="10"
+          TARGET_HOUR="17"
           #
           # ==================================
           # Current local values
