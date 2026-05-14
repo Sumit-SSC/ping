@@ -150,12 +150,12 @@ name: Latency Observability
 
 concurrency:
   group: latency-observability
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 on:
 
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "0 */2 * * *"
 
     # Weekly analytics
     - cron: "0 3 * * 1"
@@ -253,10 +253,12 @@ jobs:
             # Current latency
             # ==================================
 
-            CURRENT=$(grep 'responseTime:' "$YML_FILE" | awk '{print $2}')
-            LAST_UPDATED=$(grep 'lastUpdated:' "$YML_FILE" | awk '{print $2}')
+            CURRENT=$(grep 'responseTime:' "$YML_FILE" | tail -1 | awk '{print $2}')
+            LAST_UPDATED=$(grep 'lastUpdated:' "$YML_FILE" | tail -1 | awk '{print $2}')
 
-            [ -z "$CURRENT" ] && CURRENT=99999
+            if ! [[ "$CURRENT" =~ ^[0-9]+$ ]]; then   
+              CURRENT=0 
+            fi
 
             # ==================================
             # Existing rolling history
@@ -718,34 +720,35 @@ jobs:
             -H "Content-Type: application/json" \
             -d "$PAYLOAD"
 
-      # ====================================
-      # Persist state safely
-      # ====================================
+      # # ====================================
+      # # Persist state safely 
+      # # commenting because creating infinite loop
+      # # ====================================
 
-      - name: Persist latency state
+      # - name: Persist latency state
 
-        run: |
+      #   run: |
 
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+      #     git config user.name "github-actions"
+      #     git config user.email "actions@github.com"
 
-          git add observability/latency-state.json
-          git add observability/latency-history.json
+      #     git add observability/latency-state.json
+      #     git add observability/latency-history.json
 
-          git diff --cached --quiet && exit 0
+      #     git diff --cached --quiet && exit 0
 
-          git commit -m "Update latency observability state"
+      #     git commit -m "Update latency observability state"
 
-          for i in 1 2 3; do
+      #     for i in 1 2 3; do
 
-            git pull --rebase origin master || true
+      #       git pull --rebase origin master || true
 
-            if git push origin master; then
-              exit 0
-            fi
+      #       if git push origin master; then
+      #         exit 0
+      #       fi
 
-            sleep 3
+      #       sleep 3
 
-          done
+      #     done
 
-          exit 1
+      #     exit 1
