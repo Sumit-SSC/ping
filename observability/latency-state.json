@@ -1,6 +1,6 @@
 {
   "portfolio-page": {
-    "spikes": 1,
+    "spikes": 2,
     "last_alert": 1778716477,
     "active": true,
     "avg": 230,
@@ -80,7 +80,7 @@
     "weekly_spikes": 1
   },
   "streamio-v2": {
-    "spikes": 1,
+    "spikes": 0,
     "last_alert": 1778716477,
     "active": true,
     "avg": 340,
