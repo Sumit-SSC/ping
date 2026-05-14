@@ -110,7 +110,6 @@ echo "=================================="
 
 gh auth status || true
 
-
 # ==========================================
 # Hard failure handling
 # ==========================================
@@ -139,16 +138,28 @@ LABELS+=("observability")
 LABELS+=("automated-rca")
 
 # ==========================================
-# Incident state labels
+# Incident lifecycle labels
 # ==========================================
 
 if [[ "$ISSUE_ACTION" =~ closed ]]; then
 
   LABELS+=("resolved")
 
+  if [ "$GITHUB_ACTOR" = "github-actions[bot]" ]; then
+
+    LABELS+=("auto-resolved")
+
+  else
+
+    LABELS+=("closed-by-user")
+
+  fi
+
 else
 
   LABELS+=("active-incident")
+  LABELS+=("investigating")
+  LABELS+=("ongoing")
 
 fi
 
@@ -208,11 +219,35 @@ if [[ "$LOWER_RCA" =~ network|latency|timeout ]]; then
 fi
 
 # ==========================================
-# Remove duplicates
+# Remove duplicate labels
 # ==========================================
 
 UNIQUE_LABELS=($(printf "%s\n" "${LABELS[@]}" \
   | sort -u))
+
+# ==========================================
+# Cleanup old lifecycle labels
+# ==========================================
+
+echo "=================================="
+echo "🧹 Cleaning lifecycle labels"
+echo "=================================="
+
+if [[ "$ISSUE_ACTION" =~ closed ]]; then
+
+  gh issue edit "$ISSUE_NUMBER" \
+    --remove-label "active-incident" \
+    --remove-label "investigating" \
+    --remove-label "ongoing" || true
+
+else
+
+  gh issue edit "$ISSUE_NUMBER" \
+    --remove-label "resolved" \
+    --remove-label "auto-resolved" \
+    --remove-label "closed-by-user" || true
+
+fi
 
 # ==========================================
 # Apply labels
@@ -233,6 +268,27 @@ done
 
 echo "✅ Labels applied"
 
+# ==========================================
+# Resolution attribution
+# ==========================================
+
+if [[ "$ISSUE_ACTION" =~ closed ]]; then
+
+  if [ "$GITHUB_ACTOR" = "github-actions[bot]" ]; then
+
+    META_COMMENT="🟢 Incident automatically resolved by Upptime recovery detection."
+
+  else
+
+    META_COMMENT="👨‍💻 Incident manually closed by operator @$GITHUB_ACTOR."
+
+  fi
+
+  gh issue comment "$ISSUE_NUMBER" \
+    --body "$META_COMMENT" || true
+
+fi
+
 echo "=================================="
 echo "✅ GitHub enrichment completed"
-echo "=================================="	
+echo "=================================="
