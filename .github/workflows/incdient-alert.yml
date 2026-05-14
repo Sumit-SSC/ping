@@ -110,6 +110,10 @@
 
 name: 🚨 Incident Observability
 
+concurrency:
+  group: observability-${{ github.workflow }}
+  cancel-in-progress: true
+
 # ==========================================
 # TRIGGERS
 # ==========================================
@@ -148,12 +152,12 @@ permissions:
   contents: write
 
 # ==========================================
-# Prevent overlapping runs
+# Prevent overlapping runs (commented as added on top)
 # ==========================================
 
-concurrency:
-  group: incident-observability
-  cancel-in-progress: false
+# concurrency:
+#   group: incident-observability
+#   cancel-in-progress: false
 
 # ==========================================
 # JOBS
@@ -166,6 +170,8 @@ jobs:
   # ========================================
 
   incident:
+  
+    # if: github.actor != 'github-actions[bot]'
 
     runs-on: ubuntu-latest
 
