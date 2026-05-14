@@ -212,7 +212,7 @@ jobs:
           # Desired LOCAL delivery hour
           # ==================================
 
-          TARGET_HOUR="07"
+          TARGET_HOUR="22"
           #
           # ==================================
           # Current local values
