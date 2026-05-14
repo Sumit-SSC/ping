@@ -143,7 +143,7 @@ concurrency:
 on:
 
   # ========================================
-  # Run every 15 minutes
+  # Run every hour
   # ========================================
   schedule:
     - cron: "0 * * * *"
@@ -212,7 +212,7 @@ jobs:
           # Desired LOCAL delivery hour
           # ==================================
 
-          TARGET_HOUR="19"
+          TARGET_HOUR="07"
           #
           # ==================================
           # Current local values
