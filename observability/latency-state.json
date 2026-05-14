@@ -1,8 +1,8 @@
 {
   "portfolio-page": {
-    "spikes": 4,
+    "spikes": 0,
     "last_alert": 1778739774,
-    "active": true,
+    "active": false,
     "avg": 324,
     "deviation": 521,
     "weekly_spikes": 7
@@ -72,19 +72,19 @@
     "weekly_spikes": 2
   },
   "debug-test": {
-    "spikes": 1,
-    "last_alert": 1778241178,
+    "spikes": 2,
+    "last_alert": 1778757922,
     "active": true,
     "avg": 1,
     "deviation": 999,
-    "weekly_spikes": 1
+    "weekly_spikes": 2
   },
   "streamio-v2": {
-    "spikes": 0,
-    "last_alert": 1778716477,
-    "active": false,
-    "avg": 340,
-    "deviation": 85,
-    "weekly_spikes": 6
+    "spikes": 1,
+    "last_alert": 1778757922,
+    "active": true,
+    "avg": 388,
+    "deviation": 95,
+    "weekly_spikes": 7
   }
 }
