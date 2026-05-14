@@ -75,9 +75,9 @@ sites:
     icon: https://i.postimg.cc/XqWnmDXr/Picsart-25-10-09-08-09-45-867.png
     
   # # Offline Site to test for outage alert-checks
-  # - name: Test-Shopping
-  #   url: https//Shopping.com
-  # - name: Debug-app
+  - name: Test-Shopping
+    url: https//Shopping.com
+  - name: Debug-app
   #   url: https://example.koj.co
   # - name: my-web
   #   url: test.com
