@@ -257,7 +257,8 @@ echo "$MESSAGE"
 # Recovery GitHub comment
 # ==========================================
 
-COMMENT="## 🟢 Automated Recovery Analysis
+COMMENT=$(cat <<EOF
+## 🟢 Automated Recovery Analysis
 
 ### 🌐 Recovery Overview
 
@@ -301,11 +302,13 @@ Maintainer: @Sumit-SC | Alerts via <a href="https://t.me/mitSutestBot">[Upptime-
 • Powered by <a href="upptime.js.org">Upptime</a> +  <a href="https://github.com/features/actions">Github-Actions</a></a>
 </sub>
 
+EOF )
+
 # ==========================================
 # Post GitHub comment
 # ==========================================
 
-.github/scripts/issue-comment.sh "$COMMENT"
+bash .github/scripts/issue-comment.sh "$COMMENT"
 
 # ==========================================
 # Add resolved label
