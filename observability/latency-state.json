@@ -48,12 +48,12 @@
     "weekly_spikes": 16
   },
   "test-shopping": {
-    "spikes": 2,
-    "last_alert": 1778269996,
+    "spikes": 3,
+    "last_alert": 1778764451,
     "active": true,
     "avg": 1,
     "deviation": 999,
-    "weekly_spikes": 4
+    "weekly_spikes": 5
   },
   "debug-app": {
     "spikes": 1,
@@ -80,11 +80,19 @@
     "weekly_spikes": 2
   },
   "streamio-v2": {
-    "spikes": 1,
+    "spikes": 0,
     "last_alert": 1778757922,
     "active": true,
     "avg": 388,
     "deviation": 95,
     "weekly_spikes": 7
+  },
+  "amaosn": {
+    "spikes": 1,
+    "last_alert": 1778764451,
+    "active": true,
+    "avg": 1,
+    "deviation": 999,
+    "weekly_spikes": 1
   }
 }
