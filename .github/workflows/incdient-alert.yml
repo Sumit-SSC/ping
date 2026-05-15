@@ -108,7 +108,7 @@
 # # Actual Working Code ⬇️ / WORKFLOW
 # ==========================================
 
-name: 🚨 Incident Observability
+name: 🚨 Incident Alerts
 
 concurrency:
   group: observability-${{ github.workflow }}
