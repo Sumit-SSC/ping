@@ -146,7 +146,7 @@
 # Actual Working Code ⬇️
 # ==========================================
 
-name: Latency Observability
+name: 📈Latency Checker
 
 concurrency:
   group: latency-observability
