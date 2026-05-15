@@ -45,7 +45,7 @@ With [Upptime](https://upptime.js.org), you can get your own unlimited and free 
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 📊 Infra Summary   | [![📊 Infra Summary](https://github.com/Sumit-SC/ping/actions/workflows/telegram-summary.yml/badge.svg)](https://github.com/Sumit-SC/ping/actions/workflows/telegram-summary.yml) |
 | ⚡ Latency Monitor | [![⚡ Latency Monitor](https://github.com/Sumit-SC/ping/actions/workflows/latency-alert.yml/badge.svg)](https://github.com/Sumit-SC/ping/actions/workflows/latency-alert.yml)     |
-| 🚨 Incident Alerts | [![🚨 Incident Alerts](https://github.com/Sumit-SC/ping/actions/workflows/incident-alert.yml/badge.svg)](https://github.com/Sumit-SC/ping/actions/workflows/incident-alert.yml)   |
+| 🚨 Incident Alerts | [![🚨 Incident Observability](https://github.com/Sumit-SC/ping/actions/workflows/incdient-alert.yml/badge.svg)](https://github.com/Sumit-SC/ping/actions/workflows/incdient-alert.yml)  |
 
 </td>
 
