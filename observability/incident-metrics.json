@@ -67,7 +67,8 @@
   },
   "streamio": {
     "incidents": 1,
-    "last_down": 1779218709
+    "last_down": 1779218709,
+    "mttr": 176
   },
   "streamio-v2": {
     "incidents": 1,
