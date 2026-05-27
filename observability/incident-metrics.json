@@ -73,5 +73,9 @@
   "streamio-v2": {
     "incidents": 2,
     "last_down": 1779637015
+  },
+  "personal-lab": {
+    "incidents": 1,
+    "last_down": 1779926151
   }
 }
