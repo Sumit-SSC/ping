@@ -53,7 +53,7 @@ workflow-schedule:
 # ==========================================
 sites:
   - name: Portfolio Page
-    url: https://sumit-sc.github.io
+    url: https://sumit-ssc.github.io
     type: globalping
     location: india # Location to run the check from. Optional. Default is "World"
     icon: https://i.ibb.co/ZpH1RStQ/business-1991029.png
@@ -67,12 +67,12 @@ sites:
     url: https://www.google.com
   - name: Wikipedia
     url: https://en.wikipedia.org
-  - name: Streamio
-    url: https://idx.theworkpc.com
-    icon: https://i.postimg.cc/XqWnmDXr/Picsart-25-10-09-08-09-45-867.png
-  - name: Streamio V2
-    url: https://hardik.indevs.in
-    icon: https://i.postimg.cc/XqWnmDXr/Picsart-25-10-09-08-09-45-867.png
+  # - name: Streamio
+  #   url: https://idx.theworkpc.com
+  #   icon: https://i.postimg.cc/XqWnmDXr/Picsart-25-10-09-08-09-45-867.png
+  # - name: Streamio V2
+  #   url: https://hardik.indevs.in
+  #   icon: https://i.postimg.cc/XqWnmDXr/Picsart-25-10-09-08-09-45-867.png
     
   # # Offline Site to test for outage alert-checks
   # - name: Test-Shopping
